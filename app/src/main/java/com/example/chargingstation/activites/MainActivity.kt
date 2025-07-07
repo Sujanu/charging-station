@@ -141,7 +141,7 @@ fun StationEditScreen(db: ChargingStation, stationId: Int) {
 
     // Load the station name only once
     LaunchedEffect(stationId) {
-        stationName = db.getStationNameById(stationId) ?: ""
+        stationName = db.getStationName(stationId) ?: ""
     }
 
     OutlinedTextField(

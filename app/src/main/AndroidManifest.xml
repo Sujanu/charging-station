@@ -31,9 +31,7 @@
             android:exported="false"
             android:label="@string/title_activity_station1"
             android:theme="@style/Theme.ChargingStation" />
-        <activity
-            android:name=".ui.theme.station1"
-            android:exported="false" />
+
         <activity
             android:name=".activites.MainActivity"
             android:exported="true"
