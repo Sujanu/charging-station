@@ -1,12 +1,15 @@
 package com.example.chargingstation.activites
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,16 +39,15 @@ import androidx.compose.ui.unit.dp
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 
-class charging : ComponentActivity() {
+class Charging : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dbHelper = ChargingStation(this)
-        val db = dbHelper.writableDatabase
         enableEdgeToEdge()
         setContent {
             ChargingStationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    stationscreen(db = dbHelper)
+                     Stationscreen(db = dbHelper)
                 }
             }
         }
@@ -56,45 +58,56 @@ class charging : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun stationscreen(db: ChargingStation? = null) {
+fun Stationscreen(db: ChargingStation? = null) {
 
-    var station_name by remember { mutableStateOf("") }
+    var stationName by remember { mutableStateOf("") }
     var owner by remember { mutableStateOf("") }
     var contact by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
 
-
     var latitude by remember { mutableStateOf("") }
     var longitude by remember { mutableStateOf("") }
     var elevation by remember { mutableStateOf("") }
-
-    var charger_cost1 by remember { mutableStateOf("") }
-    var charger_capacity1 by remember { mutableStateOf("") }
-    var charger_1 by remember { mutableStateOf("") }
-    var charger_type1 by remember { mutableStateOf("") }
-    var charger_make1 by remember { mutableStateOf("") }
-
-
-    var charger_capacity2  by remember { mutableStateOf("") }
-    var charger_2 by remember { mutableStateOf("") }
-    var charger_type2 by remember { mutableStateOf("") }
-    var charger_make2 by remember { mutableStateOf("") }
-    var charger_cost2 by remember { mutableStateOf("") }
-
-
-    var charger_capacity3 by remember { mutableStateOf("") }
-    var charger_3 by remember { mutableStateOf("") }
-    var charger_type3 by remember { mutableStateOf("") }
-    var charger_make3 by remember { mutableStateOf("") }
-    var charger_cost3 by remember { mutableStateOf("") }
-
 
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Charging Station") }
+                title = { Text("Charging Station") },
+             actions = {
+                 val context = LocalContext.current
+                 Button(onClick = {
+                     context.startActivity(Intent(context, MainActivity::class.java))
+                 }) {
+                     Text("Home")
+                 }
+
+                 Button(onClick = {
+                     context.startActivity(Intent(context, Station1::class.java))
+                 }) {
+                     Text(text = "Station 1")
+                 }
+
+                 Button(onClick = {
+                     context.startActivity(Intent(context, Station2::class.java))
+                 }) {
+                     Text(text = "Station 2")
+                 }
+
+                 Button(onClick = {
+                     context.startActivity(Intent(context, Station3::class.java))
+                 }) {
+                     Text(text = "Station 3")
+                 }
+
+                 Button(onClick = {
+                     context.startActivity(Intent(context, StationDesc::class.java))
+                 }) {
+                     Text(text = "Station info")
+                 }
+
+             }
             )
         }
 
@@ -109,12 +122,12 @@ fun stationscreen(db: ChargingStation? = null) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-
+            /// Column ///
             Text("Station Information", modifier = Modifier.padding(bottom = 8.dp))
 
             OutlinedTextField(
-                value = station_name,
-                onValueChange = { station_name = it },
+                value = stationName,
+                onValueChange = { stationName = it },
                 label = { Text("Charging Station Name") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -173,59 +186,55 @@ fun stationscreen(db: ChargingStation? = null) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row (modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            )
+            {
                 Button(onClick = {
                     if (
-                        owner.isNotEmpty() && contact.isNotEmpty() && station_name.isNotEmpty() && location.isNotEmpty() &&
-                        longitude.isNotEmpty() && latitude.isNotEmpty() && elevation.isNotEmpty() &&
-                        charger_1.isNotEmpty() && charger_capacity1.isNotEmpty() && charger_cost1.isNotEmpty() &&
-                        charger_make1.isNotEmpty() && charger_type1.isNotEmpty()
+                        owner.isNotEmpty() && contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty()
+//                        &&  longitude.isNotEmpty() && latitude.isNotEmpty() && elevation.isNotEmpty()
                     ) {
 
-                        val contactInt = contact.toInt()
-                        val longitudeDouble  = longitude.toDouble()
-                        val latitudeDouble = latitude.toDouble()
-                        val elevationDouble = elevation.toDouble()
+                        val contactInt = contact.toLong()
+//                        val longitudeDouble = longitude.toDouble()
+//                        val latitudeDouble = latitude.toDouble()
+//                        val elevationDouble = elevation.toDouble()
 
                         db?.insertChargingStation(
                             owner = owner,
-                            contact = contactInt ,
-                            station_name = station_name,
-                            location = location,
-                            longitude = longitudeDouble,
-                            latitude = latitudeDouble,
-                            elevation = elevationDouble
+                            contact = contactInt,
+                            stationName = stationName,
+                            location = location
+//                            longitude = longitudeDouble,
+//                            latitude = latitudeDouble,
+//                            elevation = elevationDouble
                         )
-                        Toast.makeText(context,"SAVED", Toast.LENGTH_SHORT).show()
-                    }else{
-                        Toast.makeText(context,"All field are not filled", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 })
                 {
                     Text(text = "SAVE")
                 }
-            }
-            Button(onClick = {
 
-                owner = ""
-                contact = ""
-                location = ""
-                longitude = ""
-                elevation = ""
-                station_name = ""
+                Button(onClick = {
 
-                charger_1 =""
-                charger_cost1 = ""
-                charger_make1 = ""
-                charger_type1 = ""
-                charger_capacity1 = ""
+                    owner = ""
+                    contact = ""
+                    location = ""
+                    longitude = ""
+                    elevation = ""
+                    stationName = ""
 
-                Toast.makeText(context,"All field cleared",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "All field cleared", Toast.LENGTH_SHORT).show()
 
-
-            }) {
-                Text(text = "Clear")
+                }) {
+                    Text(text = "Clear")
+                }
             }
         }
 

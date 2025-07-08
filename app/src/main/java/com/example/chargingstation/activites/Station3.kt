@@ -1,11 +1,14 @@
 package com.example.chargingstation.activites
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,11 +38,10 @@ import androidx.compose.ui.unit.dp
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 
-class station3 : ComponentActivity() {
+class Station3 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val dbHelper = ChargingStation(this)
-        val db = dbHelper.writableDatabase
         enableEdgeToEdge()
         setContent {
             ChargingStationTheme {
@@ -58,18 +60,45 @@ class station3 : ComponentActivity() {
 @Composable
 fun ChargerStation3(db: ChargingStation? = null) {
 
-    var charger_cost_3 by remember { mutableStateOf("") }
-    var charger_capacity_3 by remember { mutableStateOf("") }
-    var charger_3 by remember { mutableStateOf("") }
-    var charger_type_3 by remember { mutableStateOf("") }
-    var charger_make_3 by remember { mutableStateOf("") }
+    var chargerCost3 by remember { mutableStateOf("") }
+    var chargerCapacity3 by remember { mutableStateOf("") }
+    var charger3 by remember { mutableStateOf("") }
+    var chargerType3 by remember { mutableStateOf("") }
+    var chargerMake3 by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Charging Station Charger 2") }
+                title = { Text("Charging Station Charger 3") },
+                actions = {
+
+                    Button(onClick = {
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    }) {
+                        Text("Home")
+                    }
+
+                    Button(onClick = {
+                        context.startActivity(Intent(context, Station1::class.java))
+                    }) {
+                        Text(text = "Station 1")
+                    }
+
+                    Button(onClick = {
+                        context.startActivity(Intent(context, Station2::class.java))
+                    }) {
+                        Text(text = "Station 2")
+                    }
+
+                    Button(onClick = {
+                        context.startActivity(Intent(context, StationDesc::class.java))
+                    }) {
+                        Text(text = "Station Info")
+                    }
+
+                }
             )
         }
 
@@ -82,39 +111,41 @@ fun ChargerStation3(db: ChargingStation? = null) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
-        ) {
+        )
+        {
+
             Text(text = ("Charger Information"))
 
             OutlinedTextField(
-                value = charger_capacity_3,
-                onValueChange = { charger_capacity_3 = it },
-                label = { Text("Charger Capacity 1") }
+                value = chargerCapacity3,
+                onValueChange = { chargerCapacity3 = it },
+                label = { Text("Charger Capacity ") }
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = charger_3,
-                onValueChange = { charger_3 = it },
+                value = charger3,
+                onValueChange = { charger3 = it },
                 label = { Text("Charger No ") }
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = charger_make_3,
-                onValueChange = { charger_make_3 = it },
+                value = chargerMake3,
+                onValueChange = { chargerMake3 = it },
                 label = { Text("Charger made") }
             )
 
             OutlinedTextField(
-                value = charger_type_3,
-                onValueChange = { charger_type_3 = it },
+                value = chargerType3,
+                onValueChange = { chargerType3 = it },
                 label = { Text("Charger type ") }
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = charger_cost_3,
-                onValueChange = { charger_cost_3 = it },
+                value = chargerCost3,
+                onValueChange = { chargerCost3 = it },
                 label = { Text("Charger Cost") }
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -125,19 +156,25 @@ fun ChargerStation3(db: ChargingStation? = null) {
             ) {
                 Button(onClick = {
                     if (
-                        charger_3.isNotEmpty() && charger_capacity_3.isNotEmpty() && charger_cost_3.isNotEmpty() &&
-                        charger_make_3.isNotEmpty() && charger_type_3.isNotEmpty()
+                        charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
+                        chargerMake3.isNotEmpty() && chargerType3.isNotEmpty()
                     ) {
-                        val chargerno1INt = charger_cost_3.toInt()
-                        val chargercostI1nt = charger_cost_3.toInt()
+                        val chargerno1INt = chargerCost3.toLong()
+                        val chargercostI1nt = chargerCost3.toLong()
 
-                        db?.insertCharger1(
-                            charger_capacity_1 = charger_capacity_3,
-                            charger_make_1 = charger_make_3,
-                            charger_type_1 = charger_type_3,
-                            charger_no_1 = chargerno1INt,
-                            charger_cost_1 = chargercostI1nt
+                        db?.insertCharger3(
+                            chargerCapacity3 = chargerCapacity3,
+                            chargerMake3 = chargerMake3,
+                            chargerType3 = chargerType3,
+                            charger3 = chargerno1INt,
+                            chargerCost3 = chargercostI1nt
                         )
+                        charger3 = ""
+                        chargerCost3 = ""
+                        chargerMake3 = ""
+                        chargerType3 = ""
+                        chargerCapacity3 = ""
+
                         Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
@@ -147,11 +184,10 @@ fun ChargerStation3(db: ChargingStation? = null) {
                 {
                     Text(text = "SAVE")
                 }
-
             }
 
+
+            }
         }
-
-    }
-
 }
+

@@ -1,14 +1,15 @@
 package com.example.chargingstation.activites
 
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.expandIn
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,27 +17,41 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.ui.theme.ChargingStationTheme
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +63,6 @@ class MainActivity : ComponentActivity() {
             ChargingStationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainScreen(db = dbHelper)
-                    StationEditScreen(db = dbHelper, stationId = 1)
                 }
             }
         }
@@ -61,47 +75,40 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(db: ChargingStation? = null) {
 
-    var station_name by remember { mutableStateOf("") }
-    var owner by remember { mutableStateOf("") }
-    var contact by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-
-
-    var latitude by remember { mutableStateOf("") }
-    var longitude by remember { mutableStateOf("") }
-    var elevation by remember { mutableStateOf("") }
-
-    var charger_cost1 by remember { mutableStateOf("") }
-    var charger_capacity1 by remember { mutableStateOf("") }
-    var charger_1 by remember { mutableStateOf("") }
-    var charger_type1 by remember { mutableStateOf("") }
-    var charger_make1 by remember { mutableStateOf("") }
-
-
-    var charger_capacity2  by remember { mutableStateOf("") }
-    var charger_2 by remember { mutableStateOf("") }
-    var charger_type2 by remember { mutableStateOf("") }
-    var charger_make2 by remember { mutableStateOf("") }
-    var charger_cost2 by remember { mutableStateOf("") }
-
-
-    var charger_capacity3 by remember { mutableStateOf("") }
-    var charger_3 by remember { mutableStateOf("") }
-    var charger_type3 by remember { mutableStateOf("") }
-    var charger_make3 by remember { mutableStateOf("") }
-    var charger_cost3 by remember { mutableStateOf("") }
-
-
     val context = LocalContext.current
+
+    var owner by remember { mutableStateOf("") }
+    var disp by remember { mutableStateOf("") }
+
+    val options = listOf("Charging Station Informatiom", "Charger 1", "Charger 2", "Charger 3", "Station Description")
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(options[0]) }
+    var showDialog by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Charging Station") }
             )
-        }
+        },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = {})
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Add"
+                        )
 
-    )
+
+                    }
+                }
+            )
+
+
+                })
     { innerPadding ->
         Column(
             modifier = Modifier
@@ -110,44 +117,109 @@ fun MainScreen(db: ChargingStation? = null) {
                 .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        )
-        {
-            Row (modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(onClick = {})
-                {
-                    Text(text = "ADD")
-                }
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-                Button(onClick = {})
-                {
-                    Text(text = "EDIT")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = selectedOptionText,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                    },
+                    modifier = Modifier
+                        .menuAnchor()
+
+                        .fillMaxWidth()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    options.forEach { selectionOption ->
+                        DropdownMenuItem(
+                            text = { Text(selectionOption) },
+                            onClick = {
+                                selectedOptionText = selectionOption
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
 
-            TextField(value = owner,
-                onValueChange = {owner = it},
-                label = { Text("heeeeeeeeeeeeyyyyyyyyyyy") }
-                )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        }
 
         }
     }
+
+
+if (showDialog) {
+    AlertDialog(
+        onDismissRequest = { showDialog = false },
+        confirmButton = {
+            TextButton(onClick = { showDialog = false }) {
+                Text("OK")
+            }
+        },
+        title = {
+            Text("Selected Option")
+        },
+        text = {
+            Text("You selected: $selectedOptionText")
+        }
+    )
+}
+}
+
+
 @Composable
-fun StationEditScreen(db: ChargingStation, stationId: Int) {
-    var stationName by remember { mutableStateOf("") }
-
-    // Load the station name only once
-    LaunchedEffect(stationId) {
-        stationName = db.getStationName(stationId) ?: ""
-    }
-
-    OutlinedTextField(
-        value = stationName,
-        onValueChange = { stationName = it },
-        label = { Text("Station Name") },
-        modifier = Modifier.fillMaxWidth()
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
     )
 }
