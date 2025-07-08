@@ -27,12 +27,10 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "owner TEXT NOT NULL," +
                     "station_name TEXT NOT NULL," +
                     "contact LONG not null," +
-                    "location TEXT NOT NULL)"
-
-//                    +
-//                    "longitude DOUBLE NOT NULL," +
-//                    "latitude DOUBLE NOT NULL," +
-//                    "elevation DOUBLE NOT NULL)"
+                    "location TEXT NOT NULL," +
+                    "longitude DOUBLE NOT NULL," +
+                    "latitude DOUBLE NOT NULL," +
+                    "elevation DOUBLE NOT NULL)"
 
         )
         db?.execSQL(
@@ -87,9 +85,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         stationName: String,
         contact: Long,
         location: String,
-//        longitude: Double,
-//        latitude: Double,
-//        elevation: Double
+        longitude: Double,
+        latitude: Double,
+        elevation: Double
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -97,9 +95,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("stationName", stationName)
             put("contact", contact)
             put("location", location)
-//            put("longitude", longitude)
-//            put("latitude", latitude)
-//            put("elevation", elevation)
+            put("longitude", longitude)
+            put("latitude", latitude)
+            put("elevation", elevation)
 
         }
 
