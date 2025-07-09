@@ -1,5 +1,13 @@
 package com.example.chargingstation.activites
 
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
+import java.text.SimpleDateFormat
+import java.util.*
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -13,6 +21,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.chargingstation.*
 import com.example.chargingstation.ui.theme.ChargingStationTheme
+import com.example.chargingstation.utils.GPSFetcher
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -70,6 +81,9 @@ fun Stationscreen(db: ChargingStation? = null) {
     var longitude by remember { mutableStateOf("") }
     var elevation by remember { mutableStateOf("") }
 
+    var dateTime by remember { mutableStateOf("") }
+    var locationText by remember { mutableStateOf("Fetching location...") }
+
     val fusedLocationClient = remember {
         LocationServices.getFusedLocationProviderClient(context)
     }
@@ -104,25 +118,14 @@ fun Stationscreen(db: ChargingStation? = null) {
             TopAppBar(
                 title = { Text("Charging Station") },
                 actions = {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         context.startActivity(Intent(context, MainActivity::class.java))
-                    }) { Text("Home") }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station1::class.java))
-                    }) { Text("Station 1") }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station2::class.java))
-                    }) { Text("Station 2") }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station3::class.java))
-                    }) { Text("Station 3") }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, StationDesc::class.java))
-                    }) { Text("Station info") }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = "Home"
+                        )
+                    }
                 }
             )
         }
@@ -136,6 +139,7 @@ fun Stationscreen(db: ChargingStation? = null) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
+////////////////////////////////////////////////////////////////////////////////////////////
             Text("Station Information", modifier = Modifier.padding(bottom = 8.dp))
 
             OutlinedTextField(
@@ -174,53 +178,87 @@ fun Stationscreen(db: ChargingStation? = null) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(onClick = { getCurrentLocation() }) {
-                Text("Get GPS Location")
+            Box(
+                modifier = Modifier,
+            ) {
+
+                Column {
+
+
+                    Button(onClick = {
+                        val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                        dateTime = currentDateTime
+
+                            val gps = GPSFetcher(context)
+                            gps.fetchLocation { lat, lon, elev ->
+                                latitude = lat.toString()
+                                longitude = lon.toString()
+                                elevation = String.format("%.2f", elev)
+                                locationText =
+                                    "Lat: $lat\nLon: $lon\nElevation: ${"%.2f".format(elev)} m"
+                            }
+
+                    })
+                    {
+                        Text("Get GPS Location")
+                    }
+
+                    OutlinedTextField(
+                        value = latitude,
+                        onValueChange = {},
+                        label = { Text("Latitude $latitude") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false
+                    )
+
+                    OutlinedTextField(
+                        value = longitude,
+                        onValueChange = {},
+                        label = { Text("Longitude $longitude") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false
+                    )
+
+                    OutlinedTextField(
+                        value = elevation,
+                        onValueChange = {},
+                        label = { Text("Elevation $elevation") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false
+                    )
+
+                    OutlinedTextField(
+                        value = dateTime,
+                        onValueChange = {},
+                        label = { Text("Date & time  $dateTime") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = false
+                    )
+
+
+                }
+
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
-            OutlinedTextField(
-                value = latitude,
-                onValueChange = {},
-                label = { Text("Latitude") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false
-            )
-
-            OutlinedTextField(
-                value = longitude,
-                onValueChange = {},
-                label = { Text("Longitude") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false
-            )
-
-            OutlinedTextField(
-                value = elevation,
-                onValueChange = {},
-                label = { Text("Elevation") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
 
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
                 Button(onClick = {
                     if (
                         owner.isNotEmpty() && contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty()
-                        && longitude.isNotEmpty() && latitude.isNotEmpty() && elevation.isNotEmpty()
+                        && longitude.isNotEmpty()
                     ) {
                         val contactInt = contact.toLong()
                         val longitudeDouble = longitude.toDouble()
                         val latitudeDouble = latitude.toDouble()
                         val elevationDouble = elevation.toDouble()
+                        val chargerno1INt = charger2.toLong()
+                        val chargercostI1nt = chargerCost2.toLong()
+                        val chargerno1INt = chargerCost3.toLong()
+                        val chargercostI1nt = chargerCost3.toLong()
 
                         db?.insertChargingStation(
                             owner = owner,
@@ -229,7 +267,8 @@ fun Stationscreen(db: ChargingStation? = null) {
                             location = location,
                             longitude = longitudeDouble,
                             latitude = latitudeDouble,
-                            elevation = elevationDouble
+                            elevation = elevationDouble,
+                            dateTime = dateTime
                         )
                         owner = ""
                         contact = ""
@@ -240,7 +279,8 @@ fun Stationscreen(db: ChargingStation? = null) {
                         latitude = ""
                         Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, "All fields are not filled", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "All fields are not filled", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }) {
                     Text("SAVE")
@@ -248,4 +288,4 @@ fun Stationscreen(db: ChargingStation? = null) {
             }
         }
     }
-}
+

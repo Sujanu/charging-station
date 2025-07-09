@@ -6,4 +6,5 @@
     <string name="title_activity_charging">charging</string>
     <string name="title_activity_station_desc">StationDesc</string>
     <string name="title_activity_test">test</string>
+    <string name="title_activity_gpsfetcher">GPSFetcher</string>
 </resources>

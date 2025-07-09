@@ -1,5 +1,6 @@
 package com.example.chargingstation.activites
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -8,15 +9,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -65,33 +70,23 @@ fun StationDesc(db: ChargingStation? = null) {
     val context = LocalContext.current
 
 
+
+
+
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Charging Station") },
                 actions = {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         context.startActivity(Intent(context, MainActivity::class.java))
-                    }) {
-                        Text("Home")
-                    }
 
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station1::class.java))
                     }) {
-                        Text(text = "Station 1")
-                    }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station2::class.java))
-                    }) {
-                        Text(text = "Station 2")
-                    }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station3::class.java))
-                    }) {
-                        Text(text = "Station 3")
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = "Home"
+                        )
                     }
                 }
             )
@@ -132,38 +127,52 @@ fun StationDesc(db: ChargingStation? = null) {
                 onValueChange = { anyChallenge = it },
                 label = { Text(text = "Any challenges or issues during implementation") }
             )
-            Button(
-                onClick =
-                    {
-                        if (costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() &&
-                            anyChallenge.isNotEmpty()
-                        ) {
-                            db?.insertDesc(
-                                cost_of_electricty_per_month = costOfElec.toInt(),
-                                average_no_of_micro_bus_per_day = avgMb.toInt(),
-                                average_no_of_car_bus_per_day = avgCb.toInt(),
-                                any_challenges_or_issues_during_implementaion = anyChallenge
-                            )
-                            avgCb = ""
-                            avgMb = ""
-                            costOfElec = ""
-                            anyChallenge = ""
 
-                            Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "All field's are not filled",
-                                Toast.LENGTH_SHORT
-                            ).show()
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Text("Upload Photos (2):")
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Button(
+                    onClick =
+                        {
+                            if (costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() &&
+                                anyChallenge.isNotEmpty()
+                            ) {
+
+                                db?.insertDesc(
+                                    cost_of_electricty_per_month = costOfElec.toInt(),
+                                    average_no_of_micro_bus_per_day = avgMb.toInt(),
+                                    average_no_of_car_bus_per_day = avgCb.toInt(),
+                                    any_challenges_or_issues_during_implementaion = anyChallenge
+                                )
+                                avgCb = ""
+                                avgMb = ""
+                                costOfElec = ""
+                                anyChallenge = ""
+
+                                Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "All field's are not filled",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    }
-            )
-            {
-                Text(text = "Save")
+                )
+                {
+                    Text(text = "Save")
+                }
+
             }
 
         }
-
     }
 }

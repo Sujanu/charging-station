@@ -73,10 +73,21 @@ fun MainScreen(db: ChargingStation? = null) {
     var owner by remember { mutableStateOf("") }
     var disp by remember { mutableStateOf("") }
 
-    val options = listOf("Charging Station Informatiom", "Charger 1", "Charger 2", "Charger 3", "Station Description")
+    val options = listOf(
+        "Charging Station Description",
+        "Charger 1",
+        "Charger 2",
+        "Charger 3",
+        "Station Info"
+    )
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(options[0]) }
     var showDialog by remember { mutableStateOf(false) }
+
+    val optionAdd =
+        listOf("Station Info", "Charger 1", "Charger 2", "Charger 3", "Station Description")
+    var expandedAdd by remember { mutableStateOf(false) }
+    var selectedOptionTextAdd by remember { mutableStateOf(options[0]) }
 
 
     Scaffold(
@@ -85,27 +96,38 @@ fun MainScreen(db: ChargingStation? = null) {
                 title = { Text("Charging Station") }
             )
         },
+
+
+        /////////////////// **************** bottom bar *************** ///////////////////
         bottomBar = {
             BottomAppBar(
                 actions = {
-                    IconButton(onClick = {})
+
+                    IconButton(
+                        onClick = {
+                            context.startActivity(Intent(context, Station1::class.java ))
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "Add"
                         )
 
-
                     }
                 }
             )
 
+        }
 
-                })
+        /////////////////
+
+    )
     { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
                 .padding(16.dp),
@@ -114,114 +136,12 @@ fun MainScreen(db: ChargingStation? = null) {
         ) {
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    value = selectedOptionText,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    options.forEach { selectionOption ->
-                        DropdownMenuItem(
-                            text = { Text(selectionOption) },
-                            onClick = {
-                                selectedOptionText = selectionOption
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
+            OutlinedTextField(
+                value = owner,
+                onValueChange = {owner = it},
+                label = { Text("owner") }
+            )
             Spacer(modifier = Modifier.height(24.dp))
-
-            Button(onClick = {
-                context.startActivity(Intent(context, Charging::class.java))
-
-            }) { }
-
-
         }
-
-
     }
-
-
-if (showDialog) {
-    AlertDialog(
-        onDismissRequest = { showDialog = false },
-        confirmButton = {
-            TextButton(onClick = { showDialog = false }) {
-                Text("OK")
-            }
-        },
-        title = {
-            Text("Selected Option")
-        },
-        text = {
-            Text("You selected: $selectedOptionText")
-        }
-    )
-}
-
-
-}
-
-
-@Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-    icon: ImageVector,
-) {
-    AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
 }

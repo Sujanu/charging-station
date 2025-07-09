@@ -6,65 +6,50 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import androidx.compose.runtime.currentRecomposeScope
-import com.example.chargingstation.model.chargerStation2
+import java.sql.Blob
+import java.time.chrono.ChronoLocalDateTime
 
 
 class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME, null, 2) {
 
     companion object {
         const val DATABSENAME = "chargingStation.db"
-        const val TABLE_NAME = "station"
+        const val STATION_INFORMATION = "stationInformation"
         const val CHARGING_1 = "chargerStation1"
         const val CHARGING_2 = "chargerStation2"
         const val CHARGING_3 = "chargerStation3"
-        const val STATION_DESCRIPTION = "station_desc"
+        const val STATION_DESCRIPTION = "stationDescription"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(
-            "CREATE TABLE $TABLE_NAME(" +
+            "CREATE TABLE $STATION_INFORMATION(" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "owner TEXT NOT NULL," +
                     "station_name TEXT NOT NULL," +
                     "contact LONG not null," +
                     "location TEXT NOT NULL," +
-                    "longitude DOUBLE NOT NULL," +
-                    "latitude DOUBLE NOT NULL," +
-                    "elevation DOUBLE NOT NULL)"
-
-        )
-        db?.execSQL(
-            "CREATE TABLE $CHARGING_1(" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "longitude REAL," +
+                    "latitude REAL ," +
+                    "elevation REAL," +
+                    "dateTime TEXT NOT NULL," +
                     "chargerCapacity1 TEXT NOT NULL," +
                     "charger1 TEXT NOT NULL," +
                     "chargerType1 TEXT NOT NULL," +
                     "chargerMake1 TEXT NOT NULL," +
-                    "chargerCost1 LONG NOT NULL)"
-        )
-
-        db?.execSQL(
-            "CREATE TABLE $CHARGING_2(" +
+                    "chargerCost1 LONG NOT NULL," +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "chargerCapacity2 TEXT NOT NULL," +
                     "charger2 TEXT NOT NULL," +
                     "chargerType2 TEXT NOT NULL," +
                     "chargerMake2 TEXT NOT NULL," +
-                    "chargerCost2 LONG NOT NULL)"
-        )
-
-        db?.execSQL(
-            "CREATE TABLE $CHARGING_3(" +
+                    "chargerCost2 LONG NOT NULL,"+
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "chargerCapacity3 TEXT NOT NULL," +
                     "charger3 TEXT NOT NULL," +
                     "chargerType3 TEXT NOT NULL," +
                     "chargerMake3 TEXT NOT NULL," +
-                    "chargerCost3 LONG NOT NULL)"
-        )
-
-        db?.execSQL(
-            "CREATE TABLE $STATION_DESCRIPTION(" +
+                    "chargerCost3 LONG NOT NULL," +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "cost_of_electricty_per_month INTEGER NOT NULL," +
                     "average_no_of_micro_bus_per_day INTEGER NOT NULL," +
@@ -74,11 +59,12 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "photo_2 BLOB NOT NULL)"
         )
     }
-
-
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
 
     }
+
+
+    /////////// ****** Station Info ****** ///////////
 
     fun insertChargingStation(
         owner: String,
@@ -87,21 +73,22 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         location: String,
         longitude: Double,
         latitude: Double,
-        elevation: Double
+        elevation: Double,
+        dateTime: String
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put("owner", owner)
-            put("stationName", stationName)
+            put("station_name", stationName)
             put("contact", contact)
             put("location", location)
             put("longitude", longitude)
             put("latitude", latitude)
             put("elevation", elevation)
-
+            put("dateTime", dateTime)
         }
 
-        val result = db.insert(TABLE_NAME, null, values)
+        val result = db.insert(STATION_INFORMATION, null, values)
 
         if (result == -1L) {
 

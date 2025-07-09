@@ -18,8 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -74,29 +78,17 @@ fun ChargerStation2(db: ChargingStation? = null) {
                 title = { Text("Charging Station Charger 2") },
 
                 actions = {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         context.startActivity(Intent(context, MainActivity::class.java))
-                    }) {
-                        Text("Home")
+                    }
+                    )
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = "Home"
+                        )
                     }
 
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station1::class.java))
-                    }) {
-                        Text(text = "Station 1")
-                    }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, Station3::class.java))
-                    }) {
-                        Text(text = "Station 3")
-                    }
-
-                    Button(onClick = {
-                        context.startActivity(Intent(context, StationDesc::class.java))
-                    }) {
-                        Text(text = "Station Info")
-                    }
                 }
 
             )
@@ -129,6 +121,7 @@ fun ChargerStation2(db: ChargingStation? = null) {
 
             Text(text = ("Charger Information"))
 
+            ////////////////////////////////////////////////////////////
             OutlinedTextField(
                 value = chargerCapacity2,
                 onValueChange = { chargerCapacity2 = it },
@@ -161,6 +154,7 @@ fun ChargerStation2(db: ChargingStation? = null) {
                 onValueChange = { chargerCost2 = it },
                 label = { Text("Charger Cost") }
             )
+            ///////////////////////////////////////////////////////////
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -174,6 +168,8 @@ fun ChargerStation2(db: ChargingStation? = null) {
                     ) {
                         val chargerno1INt = charger2.toLong()
                         val chargercostI1nt = chargerCost2.toLong()
+                        val chargerno1INt = chargerCost3.toLong()
+                        val chargercostI1nt = chargerCost3.toLong()
 
                         db?.insertCharger2(
                             chargerCapacity2 = chargerCapacity2,
