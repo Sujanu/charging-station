@@ -1,20 +1,18 @@
 package com.example.chargingstation.activites
 
+
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,11 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -71,6 +67,12 @@ class Station1 : ComponentActivity() {
         }
 
         val dbHelper = ChargingStation(this)
+
+        val allStations = dbHelper.getAllChargingStations()
+        allStations.forEach {
+            Log.d("StationData", it.toString())
+        }
+
         enableEdgeToEdge()
         setContent {
             ChargingStationTheme {
@@ -86,8 +88,7 @@ class Station1 : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun ChargerStation1(db: ChargingStation? = null)
-{
+fun ChargerStation1(db: ChargingStation? = null) {
 
     var stationName by remember { mutableStateOf("") }
     var owner by remember { mutableStateOf("") }
@@ -127,49 +128,20 @@ fun ChargerStation1(db: ChargingStation? = null)
     val context = LocalContext.current
 
 
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    //  Function to get GPS location
-    @SuppressLint("MissingPermission")
-    fun getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { locationResult: Location? ->
-                if (locationResult != null) {
-                    latitude = locationResult.latitude.toString()
-                    longitude = locationResult.longitude.toString()
-                    elevation = locationResult.altitude.toString()
-                    Toast.makeText(context, "Location Acquired", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Location unavailable", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Charging Station Charger 1") },
                 actions = {
                     IconButton(onClick = {
-                            context.startActivity (Intent(context, MainActivity::class.java))
+                        context.startActivity(Intent(context, MainActivity::class.java))
                     }
-                                )
+                    )
                     {
-                            Icon(
-                                imageVector = Icons.Filled.Home,
-                                contentDescription = "Home"
-                            )
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = "Home"
+                        )
                     }
 
                 }
@@ -177,7 +149,7 @@ fun ChargerStation1(db: ChargingStation? = null)
         }
     )
 
-                { innerPadding ->
+    { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -232,9 +204,10 @@ fun ChargerStation1(db: ChargingStation? = null)
 
 
                     Button(onClick = {
-                        val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                            Date()
-                        )
+                        val currentDateTime =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+                                Date()
+                            )
                         dateTime = currentDateTime
 
                         val gps = GPSFetcher(context)
@@ -254,7 +227,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                     OutlinedTextField(
                         value = latitude,
                         onValueChange = {},
-                        label = { Text("Latitude $latitude") },
+                        label = { Text("Latitude") },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = false
                     )
@@ -262,7 +235,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                     OutlinedTextField(
                         value = longitude,
                         onValueChange = {},
-                        label = { Text("Longitude $longitude") },
+                        label = { Text("Longitude") },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = false
                     )
@@ -270,7 +243,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                     OutlinedTextField(
                         value = elevation,
                         onValueChange = {},
-                        label = { Text("Elevation $elevation") },
+                        label = { Text("Elevation") },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = false
                     )
@@ -278,15 +251,11 @@ fun ChargerStation1(db: ChargingStation? = null)
                     OutlinedTextField(
                         value = dateTime,
                         onValueChange = {},
-                        label = { Text("Date & time  $dateTime") },
+                        label = { Text("Date & time") },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = false
                     )
-
-
                 }
-
-
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -296,7 +265,7 @@ fun ChargerStation1(db: ChargingStation? = null)
 
             ///////////////////////////////////// 1 /////////////////////////////////////
 
-            Text(text = ("Charger 3"))
+            Text(text = ("Charger 1"))
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -304,7 +273,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                 value = charger1,
                 onValueChange = { charger1 = it },
                 label = { Text("Charger No ") },
-                        modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -312,7 +281,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                 value = chargerCapacity1,
                 onValueChange = { chargerCapacity1 = it },
                 label = { Text("Charger Capacity ") },
-                        modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -320,7 +289,7 @@ fun ChargerStation1(db: ChargingStation? = null)
                 value = chargerMake1,
                 onValueChange = { chargerMake1 = it },
                 label = { Text("Charger made") },
-                        modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
@@ -463,59 +432,90 @@ fun ChargerStation1(db: ChargingStation? = null)
                 modifier = Modifier.fillMaxWidth()
             )
 
+            ///////////////////////////////////// Station Description /////////////////////////////////////
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ///////////////////////////////////// SAVE /////////////////////////////////////
+            Column {
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
                 Button(onClick = {
-                    if (
-                        charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty() &&
-                        chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() && owner.isNotEmpty() && contact.isNotEmpty()
-                        && stationName.isNotEmpty() && location.isNotEmpty() && longitude.isNotEmpty() && charger2.isNotEmpty()
-                        && chargerCapacity2.isNotEmpty() && chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() &&
-                        chargerType2.isNotEmpty() &&  charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() &&
-                        chargerCost3.isNotEmpty() && chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() &&
-                        costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
-                    ) {
-                        val chargerno1INt = chargerCost1.toLong()
-                        val chargercostI1nt = chargerCost1.toLong()
-                        val contactInt = contact.toLong()
-                        val longitudeDouble = longitude.toDouble()
-                        val latitudeDouble = latitude.toDouble()
-                        val elevationDouble = elevation.toDouble()
-                        val chargerno1INt = charger2.toLong()
-                        val chargercostI1nt = chargerCost2.toLong()
-                        val chargerno1INt = chargerCost3.toLong()
-                        val chargercostI1nt = chargerCost3.toLong()
+                if (
 
-                        db?.insertCharger1(
-                            chargerCapacity1 = chargerCapacity1,
-                            chargerMake1 = chargerMake1,
-                            chargerType1 = chargerType1,
-                            charger1 = chargerno1INt,
-                            chargerCost1 = chargercostI1nt
-                        )
+                    /// validation class///
 
-                        charger1 = ""
-                        chargerCost1 = ""
-                        chargerMake1 = ""
-                        chargerType1 = ""
-                        chargerCapacity1 = ""
+                    charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty() &&
+                    chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() && owner.isNotEmpty() &&
+                    contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty() &&
+                    longitude.isNotEmpty() && charger2.isNotEmpty() && chargerCapacity2.isNotEmpty() &&
+                    chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty() &&
+                    charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
+                    chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
+                    avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
+                ) {
+                    val chargernoINt1 = chargerCost1.toLong()
+                    val chargercostInt1 = chargerCost1.toLong()
 
-                        Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                })
-                {
-                    Text(text = "SAVE")
+                    val contactInt = contact.toLong()
+                    val longitudeDouble = longitude.toDouble()
+                    val latitudeDouble = latitude.toDouble()
+                    val elevationDouble = elevation.toDouble()
+
+                    val chargernoInt2 = charger2.toLong()
+                    val chargercostInt2 = chargerCost2.toLong()
+
+                    val chargernoInt3 = chargerCost3.toLong()
+                    val chargercostInt3 = chargerCost3.toLong()
+
+                    db?.insertCharger1(
+                        owner = owner,
+                        contact = contactInt,
+                        stationName = stationName,
+                        location = location,
+                        longitude = longitudeDouble,
+                        latitude = latitudeDouble,
+                        elevation = elevationDouble,
+                        dateTime = dateTime,
+
+                        chargerCapacity1 = chargerCapacity1,
+                        chargerMake1 = chargerMake1,
+                        chargerType1 = chargerType1,
+                        charger1 = chargernoINt1,
+                        chargerCost1 = chargercostInt1,
+
+                        chargerCapacity2 = chargerCapacity2,
+                        chargerMake2 = chargerMake2,
+                        chargerType2 = chargerType2,
+                        charger2 = chargernoInt2,
+                        chargerCost2 = chargercostInt2,
+
+                        chargerCapacity3 = chargerCapacity3,
+                        chargerMake3 = chargerMake3,
+                        chargerType3 = chargerType3,
+                        charger3 = chargernoInt3,
+                        chargerCost3 = chargercostInt3,
+
+                        cost_of_electricty_per_month = costOfElec.toInt(),
+                        average_no_of_micro_bus_per_day = avgMb.toInt(),
+                        average_no_of_car_bus_per_day = avgCb.toInt(),
+                        any_challenges_or_issues_during_implementaion = anyChallenge
+                    )
+                    Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
+
+                    context.startActivity(Intent(context, MainActivity::class.java))
+                } else {
+                    Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
+                        .show()
                 }
-
+            })
+            {
+                Text(text = "SAVE")
             }
+            }
+
         }
-
     }
-
 }
