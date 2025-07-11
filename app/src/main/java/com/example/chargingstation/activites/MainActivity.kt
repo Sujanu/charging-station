@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.collection.emptyLongSet
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,6 +33,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,18 +69,17 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun MainScreen(db: ChargingStation? = null)
-{
+fun MainScreen(db: ChargingStation? = null) {
 
     val context = LocalContext.current
 
     val db = ChargingStation(context)
 
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Charging Station") }
-            )
+                title = { Text("Charging Station") })
         },
 
 
@@ -87,15 +90,10 @@ fun MainScreen(db: ChargingStation? = null)
 
                     IconButton(
                         onClick = {
-                            context.startActivity(Intent(context, Station1::class.java ))
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Add"
-                        )
+                            context.startActivity(Intent(context, Station1::class.java))
+                        }, modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("ADD")
 
                     }
                 }
@@ -104,8 +102,7 @@ fun MainScreen(db: ChargingStation? = null)
         }
 
         /////////////////
-    )
-    { innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -120,62 +117,91 @@ fun MainScreen(db: ChargingStation? = null)
         }
     }
 }
+/////////////////// **************** Show Data **************** ///////////////////
 
 @Composable
 fun AllStationsListScreen(db: ChargingStation) {
-    val stations = remember { (db.getAllChargingStations() }
+
+    val stations = remember { (db.getAllChargingStations()) }
+    var stationToDelete by remember { mutableStateOf<Int?>(null) }
+
     val context = LocalContext.current
 
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        if (stations.isEmpty()) {
+            Text(
+                text = "No Charging Stations Available",
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(24.dp)
+            )
+        } else {
+            stations.forEach { station ->
 
-    Column(modifier = Modifier
-        .verticalScroll(rememberScrollState())
-        .padding(16.dp)) {
-        stations.forEach { station ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                elevation = CardDefaults.cardElevation(4.dp),
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
 
-                ) {
+                    ) {
                     Column(modifier = Modifier.padding(12.dp)) {
 
                         Text(
                             "Station: ${station.stationName}",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text("Owner: ${station.owner}")
-                        Text("Contact: ${station.contact}")
-                        Text("Location: ${station.location}")
-                        Text("Charger1: Capacity ${station.chargerCapacity1}")
-                        Text("Charger2: Capacity ${station.chargerCapacity2}")
-                        Text("Charger3: Capacity ${station.chargerCapacity3}")
-                        Text("Avg Microbus: ${station.microBusPerDay}, Car/Bus: ${station.carBusPerDay}")
 
-                    Row {
-                    Button(onClick = {
-                        context.startActivity(Intent(context,Station1::class.java))
-                    })
-                    {
-                        Text("Edit")
-                    }
-                        Button(onClick = {
+                        Row {
+                            Button(onClick = {
+                                val intent = Intent(context, Station1::class.java)
+                                intent.putExtra("station_id", station.id) // pass station id
+                                context.startActivity(intent)
+                            }) {
+                                Text("Edit")
+                            }
 
-                            val deleted =  db.deleteTaskById(station.id)
-                             if (deleted){
-                                 stations.remove(station)
-                             }
-
-                            Toast.makeText(context, "Task deleted", Toast.LENGTH_SHORT).show()
-
-                        })
-                        {
-                            Text("Delete")
+                            Button(onClick = {
+                                stationToDelete = station.id
+                            }) {
+                                Text("Delete")
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
 
+/////////////////// *************** Alert Dialog *************** ///////////////////
+
+    stationToDelete?.let { id ->
+        AlertDialog(
+            onDismissRequest = { stationToDelete = null },
+            title = { Text("Confirm Deletion") },
+            text = { Text("Are you sure you want to delete this station?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val deleted = db.deleteTaskById(id)
+                        Toast.makeText(
+                            context, "Deleted $deleted station(s)", Toast.LENGTH_SHORT
+                        ).show()
+                        stationToDelete = null
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { stationToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}

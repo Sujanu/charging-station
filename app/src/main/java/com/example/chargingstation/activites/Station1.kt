@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.chargingstation.ChargingStation
+import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
 import com.google.android.gms.location.LocationServices
@@ -67,6 +68,10 @@ class Station1 : ComponentActivity() {
         }
 
         val dbHelper = ChargingStation(this)
+        val stationId = intent.getIntExtra("station_id", -1)
+
+        val station = if (stationId != -1) dbHelper.getStationById(stationId) else null
+
 
         val allStations = dbHelper.getAllChargingStations()
         allStations.forEach {
@@ -77,53 +82,51 @@ class Station1 : ComponentActivity() {
         setContent {
             ChargingStationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    ChargerStation1(db = dbHelper)
+                    ChargerStation1(db = dbHelper, station = station)
                 }
             }
         }
     }
 }
 
+/////////////////// ****************  *************** ///////////////////
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
-fun ChargerStation1(db: ChargingStation? = null) {
+fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
 
-    var stationName by remember { mutableStateOf("") }
-    var owner by remember { mutableStateOf("") }
-    var contact by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
+    var stationName by remember { mutableStateOf(station?.stationName ?: "") }
 
-    var latitude by remember { mutableStateOf("") }
-    var longitude by remember { mutableStateOf("") }
-    var elevation by remember { mutableStateOf("") }
+    var owner by remember { mutableStateOf(station?.owner ?: "") }
+    var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
+    var location by remember { mutableStateOf(station?.location ?: "") }
+    var latitude by remember { mutableStateOf(station?.latitude?.toString() ?: "") }
+    var longitude by remember { mutableStateOf(station?.longitude?.toString() ?: "") }
+    var elevation by remember { mutableStateOf(station?.elevation?.toString() ?: "") }
+    var dateTime by remember { mutableStateOf(station?.dateTime ?: "") }
 
-    var dateTime by remember { mutableStateOf("") }
-    var locationText by remember { mutableStateOf("Fetching location...") }
+    var charger1 by remember { mutableStateOf(station?.charger1 ?: "") }
+    var chargerCapacity1 by remember { mutableStateOf(station?.chargerCapacity1 ?: "") }
+    var chargerMake1 by remember { mutableStateOf(station?.chargerMake1 ?: "") }
+    var chargerType1 by remember { mutableStateOf(station?.chargerType1 ?: "") }
+    var chargerCost1 by remember { mutableStateOf(station?.chargerCost1?.toString() ?: "") }
 
-    var chargerCost1 by remember { mutableStateOf("") }
-    var chargerCapacity1 by remember { mutableStateOf("") }
-    var charger1 by remember { mutableStateOf("") }
-    var chargerType1 by remember { mutableStateOf("") }
-    var chargerMake1 by remember { mutableStateOf("") }
+    var charger2 by remember { mutableStateOf(station?.charger2 ?: "") }
+    var chargerCapacity2 by remember { mutableStateOf(station?.chargerCapacity2 ?: "") }
+    var chargerMake2 by remember { mutableStateOf(station?.chargerMake2 ?: "") }
+    var chargerType2 by remember { mutableStateOf(station?.chargerType2 ?: "") }
+    var chargerCost2 by remember { mutableStateOf(station?.chargerCost2?.toString() ?: "") }
 
-    var chargerCost2 by remember { mutableStateOf("") }
-    var chargerCapacity2 by remember { mutableStateOf("") }
-    var charger2 by remember { mutableStateOf("") }
-    var chargerType2 by remember { mutableStateOf("") }
-    var chargerMake2 by remember { mutableStateOf("") }
+    var charger3 by remember { mutableStateOf(station?.charger3 ?: "") }
+    var chargerCapacity3 by remember { mutableStateOf(station?.chargerCapacity3 ?: "") }
+    var chargerMake3 by remember { mutableStateOf(station?.chargerMake3 ?: "") }
+    var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
+    var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
 
-    var chargerCost3 by remember { mutableStateOf("") }
-    var chargerCapacity3 by remember { mutableStateOf("") }
-    var charger3 by remember { mutableStateOf("") }
-    var chargerType3 by remember { mutableStateOf("") }
-    var chargerMake3 by remember { mutableStateOf("") }
-
-    var costOfElec by remember { mutableStateOf("") }
-    var avgMb by remember { mutableStateOf("") }
-    var avgCb by remember { mutableStateOf("") }
-    var anyChallenge by remember { mutableStateOf("") }
+    var costOfElec by remember { mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
+    var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
+    var avgCb by remember { mutableStateOf(station?.carBusPerDay?.toString() ?: "") }
+    var anyChallenge by remember { mutableStateOf(station?.challenges ?: "") }
 
     val context = LocalContext.current
 
@@ -215,7 +218,7 @@ fun ChargerStation1(db: ChargingStation? = null) {
                             latitude = lat.toString()
                             longitude = lon.toString()
                             elevation = String.format("%.2f", elev)
-                            locationText =
+                            var locationText =
                                 "Lat: $lat\nLon: $lon\nElevation: ${"%.2f".format(elev)} m"
                         }
 
@@ -443,79 +446,78 @@ fun ChargerStation1(db: ChargingStation? = null) {
 
 
                 Button(onClick = {
-                if (
+                    if (
 
-                    /// validation class///
+                    /// validation class ///
 
-                    charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty() &&
-                    chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() && owner.isNotEmpty() &&
-                    contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty() &&
-                    longitude.isNotEmpty() && charger2.isNotEmpty() && chargerCapacity2.isNotEmpty() &&
-                    chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty() &&
-                    charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
-                    chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
-                    avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
-                ) {
-                    val chargernoINt1 = chargerCost1.toLong()
-                    val chargercostInt1 = chargerCost1.toLong()
+                        charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty() &&
+                        chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() && owner.isNotEmpty() &&
+                        contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty() &&
+                        longitude.isNotEmpty() && charger2.isNotEmpty() && chargerCapacity2.isNotEmpty() &&
+                        chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty() &&
+                        charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
+                        chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
+                        avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
+                    ) {
+                        val chargernoINt1 = chargerCost1.toLong()
+                        val chargercostInt1 = chargerCost1.toLong()
 
-                    val contactInt = contact.toLong()
-                    val longitudeDouble = longitude.toDouble()
-                    val latitudeDouble = latitude.toDouble()
-                    val elevationDouble = elevation.toDouble()
+                        val contactInt = contact.toLong()
+                        val longitudeDouble = longitude.toDouble()
+                        val latitudeDouble = latitude.toDouble()
+                        val elevationDouble = elevation.toDouble()
 
-                    val chargernoInt2 = charger2.toLong()
-                    val chargercostInt2 = chargerCost2.toLong()
+                        val chargernoInt2 = charger2.toLong()
+                        val chargercostInt2 = chargerCost2.toLong()
 
-                    val chargernoInt3 = chargerCost3.toLong()
-                    val chargercostInt3 = chargerCost3.toLong()
+                        val chargernoInt3 = chargerCost3.toLong()
+                        val chargercostInt3 = chargerCost3.toLong()
 
-                    db?.insertCharger1(
-                        owner = owner,
-                        contact = contactInt,
-                        stationName = stationName,
-                        location = location,
-                        longitude = longitudeDouble,
-                        latitude = latitudeDouble,
-                        elevation = elevationDouble,
-                        dateTime = dateTime,
+                        db?.insertCharger1(
+                            owner = owner,
+                            contact = contactInt,
+                            stationName = stationName,
+                            location = location,
+                            longitude = longitudeDouble,
+                            latitude = latitudeDouble,
+                            elevation = elevationDouble,
+                            dateTime = dateTime,
 
-                        chargerCapacity1 = chargerCapacity1,
-                        chargerMake1 = chargerMake1,
-                        chargerType1 = chargerType1,
-                        charger1 = chargernoINt1,
-                        chargerCost1 = chargercostInt1,
+                            chargerCapacity1 = chargerCapacity1,
+                            chargerMake1 = chargerMake1,
+                            chargerType1 = chargerType1,
+                            charger1 = chargernoINt1,
+                            chargerCost1 = chargercostInt1,
 
-                        chargerCapacity2 = chargerCapacity2,
-                        chargerMake2 = chargerMake2,
-                        chargerType2 = chargerType2,
-                        charger2 = chargernoInt2,
-                        chargerCost2 = chargercostInt2,
+                            chargerCapacity2 = chargerCapacity2,
+                            chargerMake2 = chargerMake2,
+                            chargerType2 = chargerType2,
+                            charger2 = chargernoInt2,
+                            chargerCost2 = chargercostInt2,
 
-                        chargerCapacity3 = chargerCapacity3,
-                        chargerMake3 = chargerMake3,
-                        chargerType3 = chargerType3,
-                        charger3 = chargernoInt3,
-                        chargerCost3 = chargercostInt3,
+                            chargerCapacity3 = chargerCapacity3,
+                            chargerMake3 = chargerMake3,
+                            chargerType3 = chargerType3,
+                            charger3 = chargernoInt3,
+                            chargerCost3 = chargercostInt3,
 
-                        cost_of_electricty_per_month = costOfElec.toInt(),
-                        average_no_of_micro_bus_per_day = avgMb.toInt(),
-                        average_no_of_car_bus_per_day = avgCb.toInt(),
-                        any_challenges_or_issues_during_implementaion = anyChallenge
-                    )
-                    Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
+                            cost_of_electricty_per_month = costOfElec.toInt(),
+                            average_no_of_micro_bus_per_day = avgMb.toInt(),
+                            average_no_of_car_bus_per_day = avgCb.toInt(),
+                            any_challenges_or_issues_during_implementaion = anyChallenge
+                        )
+                        Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
 
-                    context.startActivity(Intent(context, MainActivity::class.java))
-                } else {
-                    Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
-                        .show()
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    } else {
+                        Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                })
+                {
+                    Text(text = "SAVE")
                 }
-            })
-            {
-                Text(text = "SAVE")
             }
-            }
-
         }
     }
 }

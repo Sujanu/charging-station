@@ -110,13 +110,11 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("charger3", charger3.toString()) // stores as Text
             put("chargerType3", chargerType3)
             put("chargerCost3", chargerCost3)
+
             put("cost_of_electricty_per_month", cost_of_electricty_per_month)
             put("average_no_of_micro_bus_per_day", average_no_of_micro_bus_per_day)
             put("average_no_of_car_bus_per_day", average_no_of_car_bus_per_day)
-            put(
-                "any_challenges_or_issues_during_implementaion",
-                any_challenges_or_issues_during_implementaion
-            )
+            put("any_challenges_or_issues_during_implementaion", any_challenges_or_issues_during_implementaion)
         }
         val result = db.insert(CHARGING1, null, values)
 
@@ -179,11 +177,132 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         return stationList
     }
 
-
     fun deleteTaskById(id: Int): Int {
         val db = this.writableDatabase
         val deleted = db.delete(CHARGING1, "id=?", arrayOf(id.toString()))
         db.close()
         return deleted
     }
+
+    fun getStationById(id: Int): ChargingStationData? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $CHARGING1 WHERE id = ?", arrayOf(id.toString()))
+        return if (cursor.moveToFirst()) {
+            val station = ChargingStationData(
+
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                owner = cursor.getString(cursor.getColumnIndexOrThrow("owner")),
+                stationName = cursor.getString(cursor.getColumnIndexOrThrow("station_name")),
+                contact = cursor.getLong(cursor.getColumnIndexOrThrow("contact")),
+                location = cursor.getString(cursor.getColumnIndexOrThrow("location")),
+                longitude = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude")),
+                latitude = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude")),
+                elevation = cursor.getDouble(cursor.getColumnIndexOrThrow("elevation")),
+                dateTime = cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
+
+                charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
+                chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
+                chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
+                chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
+                chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
+
+                charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
+                chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
+                chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
+                chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
+                chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
+
+                charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
+                chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
+                chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
+                chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
+                chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
+
+                electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
+                microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
+                carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
+                challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion"))
+            )
+            cursor.close()
+            station
+        } else {
+            cursor.close()
+            null
+        }
+    }
+
+    fun updateChargingStation(
+        owner: String,
+        stationName: String,
+        contact: Long,
+        location: String,
+        longitude: Double,
+        latitude: Double,
+        elevation: Double,
+        dateTime: String,
+
+        chargerCapacity1: String,
+        charger1: Long,
+        chargerMake1: String,
+        chargerType1: String,
+        chargerCost1: Long,
+
+        chargerCapacity2: String,
+        charger2: Long,
+        chargerMake2: String,
+        chargerType2: String,
+        chargerCost2: Long,
+
+        chargerCapacity3: String,
+        charger3: Long,
+        chargerMake3: String,
+        chargerType3: String,
+        chargerCost3: Long,
+
+        cost_of_electricty_per_month: Int,
+        average_no_of_micro_bus_per_day: Int,
+        average_no_of_car_bus_per_day: Int,
+        any_challenges_or_issues_during_implementaion: String
+        ,id: Int,
+         station: ChargingStationData): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("owner", station.owner)
+            put("contact", station.contact)
+            put("stationName", station.stationName)
+            put("location", station.location)
+            put("longitude", station.longitude)
+            put("latitude", station.latitude)
+            put("elevation", station.elevation)
+            put("dateTime", station.dateTime)
+
+            put("chargerCapacity1", station.chargerCapacity1)
+            put("chargerMake1", station.chargerMake1)
+            put("chargerType1", station.chargerType1)
+            put("charger1", station.charger1)
+            put("chargerCost1", station.chargerCost1)
+
+            put("chargerCapacity2", station.chargerCapacity2)
+            put("chargerMake2", station.chargerMake2)
+            put("chargerType2", station.chargerType2)
+            put("charger2", station.charger2)
+            put("chargerCost2", station.chargerCost2)
+
+            put("chargerCapacity3", station.chargerCapacity3)
+            put("chargerMake3", station.chargerMake3)
+            put("chargerType3", station.chargerType3)
+            put("charger3", station.charger3)
+            put("chargerCost3", station.chargerCost3)
+
+            put("cost_of_electricty_per_month", station.electricityCostPerMonth)
+            put("average_no_of_micro_bus_per_day", station.microBusPerDay)
+            put("average_no_of_car_bus_per_day", station.carBusPerDay)
+            put("any_challenges_or_issues_during_implementaion", station.challenges)
+        }
+        val updated = db.update(CHARGING1, contentValues, "id = ?", arrayOf(id.toString()))
+        db.close()
+        return updated>0
+//        return db.update("CHARGING1", contentValues, "id = ?", arrayOf(station.id.toString())) > 0
+    }
+
 }
