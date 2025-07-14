@@ -1,7 +1,11 @@
 package com.example.chargingstation.model
 
 data class ChargingStationData(
+
+    val Station: String,
+
     val id : Int,
+    val uuid : String,
     val owner:String,
     val stationName: String,
     val contact: Long,

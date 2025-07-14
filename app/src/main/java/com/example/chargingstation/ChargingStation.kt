@@ -18,6 +18,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         db?.execSQL(
             "CREATE TABLE $CHARGING1(" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "uuid TEXT NOT NULL,"+
                     "owner TEXT NOT NULL," +
                     "station_name TEXT NOT NULL," +
                     "contact LONG not null," +
@@ -53,40 +54,43 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
     }
 
     fun insertCharger1(
-        owner: String,
-        stationName: String,
-        contact: Long,
-        location: String,
-        longitude: Double,
-        latitude: Double,
-        elevation: Double,
-        dateTime: String,
+        uuid : String,
+        owner : String,
 
-        chargerCapacity1: String,
-        charger1: Long,
-        chargerMake1: String,
-        chargerType1: String,
-        chargerCost1: Long,
+        stationName : String,
+        contact : Long,
+        location : String,
+        longitude : Double,
+        latitude : Double,
+        elevation : Double,
+        dateTime : String,
 
-        chargerCapacity2: String,
-        charger2: Long,
-        chargerMake2: String,
-        chargerType2: String,
-        chargerCost2: Long,
+        chargerCapacity1 : String,
+        charger1 : Long,
+        chargerMake1 : String,
+        chargerType1 : String,
+        chargerCost1 : Long,
 
-        chargerCapacity3: String,
-        charger3: Long,
-        chargerMake3: String,
-        chargerType3: String,
-        chargerCost3: Long,
+        chargerCapacity2 : String,
+        charger2 : Long,
+        chargerMake2 : String,
+        chargerType2 : String,
+        chargerCost2 : Long,
 
-        cost_of_electricty_per_month: Int,
-        average_no_of_micro_bus_per_day: Int,
-        average_no_of_car_bus_per_day: Int,
-        any_challenges_or_issues_during_implementaion: String
+        chargerCapacity3 : String,
+        charger3 : Long,
+        chargerMake3 : String,
+        chargerType3 : String,
+        chargerCost3 : Long,
+
+        costOfElectrictyEerMonth : Int,
+        averageNoOfMicroBusPerDay : Int,
+        averageNoOfCarBusPerDay : Int,
+        anyChallengesOrIssuesDuringImplementaion : String
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
+            put("uuid", uuid)
             put("owner", owner)
             put("station_name", stationName)
             put("contact", contact)
@@ -111,10 +115,10 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("chargerType3", chargerType3)
             put("chargerCost3", chargerCost3)
 
-            put("cost_of_electricty_per_month", cost_of_electricty_per_month)
-            put("average_no_of_micro_bus_per_day", average_no_of_micro_bus_per_day)
-            put("average_no_of_car_bus_per_day", average_no_of_car_bus_per_day)
-            put("any_challenges_or_issues_during_implementaion", any_challenges_or_issues_during_implementaion)
+            put("cost_of_electricty_per_month", costOfElectrictyEerMonth )
+            put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
+            put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
+            put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
         }
         val result = db.insert(CHARGING1, null, values)
 
@@ -136,6 +140,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             do {
                 val station = ChargingStationData(
                     id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                    uuid = cursor.getString(cursor.getColumnIndexOrThrow("uuid")),
                     owner = cursor.getString(cursor.getColumnIndexOrThrow("owner")),
                     stationName = cursor.getString(cursor.getColumnIndexOrThrow("station_name")),
                     contact = cursor.getLong(cursor.getColumnIndexOrThrow("contact")),
@@ -191,6 +196,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             val station = ChargingStationData(
 
                 id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                uuid = cursor.getString(cursor.getColumnIndexOrThrow("uuid")),
                 owner = cursor.getString(cursor.getColumnIndexOrThrow("owner")),
                 stationName = cursor.getString(cursor.getColumnIndexOrThrow("station_name")),
                 contact = cursor.getLong(cursor.getColumnIndexOrThrow("contact")),
@@ -231,45 +237,13 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         }
     }
 
-    fun updateChargingStation(
-        owner: String,
-        stationName: String,
-        contact: Long,
-        location: String,
-        longitude: Double,
-        latitude: Double,
-        elevation: Double,
-        dateTime: String,
-
-        chargerCapacity1: String,
-        charger1: Long,
-        chargerMake1: String,
-        chargerType1: String,
-        chargerCost1: Long,
-
-        chargerCapacity2: String,
-        charger2: Long,
-        chargerMake2: String,
-        chargerType2: String,
-        chargerCost2: Long,
-
-        chargerCapacity3: String,
-        charger3: Long,
-        chargerMake3: String,
-        chargerType3: String,
-        chargerCost3: Long,
-
-        cost_of_electricty_per_month: Int,
-        average_no_of_micro_bus_per_day: Int,
-        average_no_of_car_bus_per_day: Int,
-        any_challenges_or_issues_during_implementaion: String
-        ,id: Int,
-         station: ChargingStationData): Boolean {
+    fun updateChargingStation(station: ChargingStationData): Boolean {
         val db = this.writableDatabase
         val contentValues = ContentValues().apply {
             put("owner", station.owner)
+            put("uuid", station.uuid)
+            put("station_name", station.stationName)
             put("contact", station.contact)
-            put("stationName", station.stationName)
             put("location", station.location)
             put("longitude", station.longitude)
             put("latitude", station.latitude)
@@ -299,10 +273,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_car_bus_per_day", station.carBusPerDay)
             put("any_challenges_or_issues_during_implementaion", station.challenges)
         }
-        val updated = db.update(CHARGING1, contentValues, "id = ?", arrayOf(id.toString()))
-        db.close()
-        return updated>0
-//        return db.update("CHARGING1", contentValues, "id = ?", arrayOf(station.id.toString())) > 0
-    }
 
+        val updated = db.update(CHARGING1, contentValues, "id = ?", arrayOf(station.id.toString()))
+        db.close()
+        return updated > 0
+    }
 }

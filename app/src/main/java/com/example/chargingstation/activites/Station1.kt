@@ -1,6 +1,5 @@
 package com.example.chargingstation.activites
 
-
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,19 +9,23 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,18 +41,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
-import com.google.android.gms.location.LocationServices
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 class Station1 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,6 +101,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
     var stationName by remember { mutableStateOf(station?.stationName ?: "") }
 
+    var temp = uidCreator()
     var owner by remember { mutableStateOf(station?.owner ?: "") }
     var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
     var location by remember { mutableStateOf(station?.location ?: "") }
@@ -123,13 +128,16 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
     var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
 
-    var costOfElec by remember { mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
+    var costOfElec by remember {
+        mutableStateOf(
+            station?.electricityCostPerMonth?.toString() ?: ""
+        )
+    }
     var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
     var avgCb by remember { mutableStateOf(station?.carBusPerDay?.toString() ?: "") }
     var anyChallenge by remember { mutableStateOf(station?.challenges ?: "") }
 
     val context = LocalContext.current
-
 
     Scaffold(
         topBar = {
@@ -169,7 +177,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             OutlinedTextField(
                 value = stationName,
                 onValueChange = { stationName = it },
-                label = { Text("Charging Station Name") },
+                label = { Text("Charging Station Name")},
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -179,6 +188,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = owner,
                 onValueChange = { owner = it },
                 label = { Text("Owner Name") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -188,7 +198,12 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = contact,
                 onValueChange = { contact = it },
                 label = { Text("Contact No.") },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -197,6 +212,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = location,
                 onValueChange = { location = it },
                 label = { Text("Location") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Box(
@@ -217,9 +233,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         gps.fetchLocation { lat, lon, elev ->
                             latitude = lat.toString()
                             longitude = lon.toString()
-                            elevation = String.format("%.2f", elev)
-                            var locationText =
-                                "Lat: $lat\nLon: $lon\nElevation: ${"%.2f".format(elev)} m"
+                            elevation = String.format(Locale.US, "%.2f", elev)
                         }
 
                     })
@@ -276,15 +290,21 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = charger1,
                 onValueChange = { charger1 = it },
                 label = { Text("Charger No ") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
+
             )
             Spacer(modifier = Modifier.height(8.dp))
+
 
             OutlinedTextField(
                 value = chargerCapacity1,
                 onValueChange = { chargerCapacity1 = it },
                 label = { Text("Charger Capacity ") },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -292,6 +312,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerMake1,
                 onValueChange = { chargerMake1 = it },
                 label = { Text("Charger made") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -299,6 +320,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerType1,
                 onValueChange = { chargerType1 = it },
                 label = { Text("Charger type ") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -307,6 +329,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerCost1,
                 onValueChange = { chargerCost1 = it },
                 label = { Text("Charger Cost") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -322,14 +346,18 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = charger2,
                 onValueChange = { charger2 = it },
                 label = { Text("Charger No ") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCapacity2,
                 onValueChange = { chargerCapacity2 = it },
                 label = { Text("Charger Capacity ") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -338,6 +366,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerMake2,
                 onValueChange = { chargerMake2 = it },
                 label = { Text("Charger made") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -345,6 +374,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerType2,
                 onValueChange = { chargerType2 = it },
                 label = { Text("Charger type ") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -353,9 +383,12 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerCost2,
                 onValueChange = { chargerCost2 = it },
                 label = { Text("Charger Cost") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
             ///////////////////////////////////// 2 /////////////////////////////////////
+
             Spacer(modifier = Modifier.height(8.dp))
 
             ///////////////////////////////////// 3 /////////////////////////////////////
@@ -366,13 +399,18 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = charger3,
                 onValueChange = { charger3 = it },
                 label = { Text("Charger No ") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+
                 modifier = Modifier.fillMaxWidth()
+
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCapacity3,
                 onValueChange = { chargerCapacity3 = it },
+                singleLine = true,
                 label = { Text("Charger Capacity ") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -382,6 +420,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerMake3,
                 onValueChange = { chargerMake3 = it },
                 label = { Text("Charger made") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -389,6 +428,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerType3,
                 onValueChange = { chargerType3 = it },
                 label = { Text("Charger type ") },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -397,7 +437,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = chargerCost3,
                 onValueChange = { chargerCost3 = it },
                 label = { Text("Charger Cost") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
+
             )
             ///////////////////////////////////////  3 ///////////////////////////////////////
 
@@ -411,28 +454,41 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = costOfElec,
                 onValueChange = { costOfElec = it },
                 label = { Text("Cost of Electricity per month ") },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = avgMb,
                 onValueChange = { avgMb = it },
                 label = { Text(text = "Average no. of Micro bus per day") },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+
+                modifier = Modifier
+                    .fillMaxWidth()
             )
+
 
             OutlinedTextField(
                 value = avgCb,
                 onValueChange = { avgCb = it },
                 label = { Text(text = "Average no. of Car bus per day") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
+
             )
 
             OutlinedTextField(
                 value = anyChallenge,
                 onValueChange = { anyChallenge = it },
+                singleLine = true,
                 label = { Text(text = "Any challenges or issues during implementation") },
-                modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                    .fillMaxWidth()
             )
 
             ///////////////////////////////////// Station Description /////////////////////////////////////
@@ -443,13 +499,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             Column {
 
                 Spacer(modifier = Modifier.height(8.dp))
-
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 Button(onClick = {
                     if (
-
-                    /// validation class ///
-
                         charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty() &&
                         chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() && owner.isNotEmpty() &&
                         contact.isNotEmpty() && stationName.isNotEmpty() && location.isNotEmpty() &&
@@ -459,65 +512,114 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
                         avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
                     ) {
-                        val chargernoINt1 = chargerCost1.toLong()
-                        val chargercostInt1 = chargerCost1.toLong()
-
                         val contactInt = contact.toLong()
                         val longitudeDouble = longitude.toDouble()
                         val latitudeDouble = latitude.toDouble()
                         val elevationDouble = elevation.toDouble()
 
-                        val chargernoInt2 = charger2.toLong()
-                        val chargercostInt2 = chargerCost2.toLong()
+                        val chargerCostInt1 = chargerCost1.toLong()
 
-                        val chargernoInt3 = chargerCost3.toLong()
-                        val chargercostInt3 = chargerCost3.toLong()
+                        val chargerCostInt2 = chargerCost2.toLong()
 
-                        db?.insertCharger1(
+                        val chargerCostInt3 = chargerCost3.toLong()
+
+                        val newStation = ChargingStationData(
+                            id = station?.id ?: 0,
+                            uuid = temp,
                             owner = owner,
-                            contact = contactInt,
                             stationName = stationName,
+                            contact = contactInt,
                             location = location,
                             longitude = longitudeDouble,
                             latitude = latitudeDouble,
                             elevation = elevationDouble,
                             dateTime = dateTime,
 
+                            charger1 = charger1,
                             chargerCapacity1 = chargerCapacity1,
                             chargerMake1 = chargerMake1,
                             chargerType1 = chargerType1,
-                            charger1 = chargernoINt1,
-                            chargerCost1 = chargercostInt1,
+                            chargerCost1 = chargerCostInt1,
 
+                            charger2 = charger2,
                             chargerCapacity2 = chargerCapacity2,
                             chargerMake2 = chargerMake2,
                             chargerType2 = chargerType2,
-                            charger2 = chargernoInt2,
-                            chargerCost2 = chargercostInt2,
+                            chargerCost2 = chargerCostInt2,
 
+                            charger3 = charger3,
                             chargerCapacity3 = chargerCapacity3,
                             chargerMake3 = chargerMake3,
                             chargerType3 = chargerType3,
-                            charger3 = chargernoInt3,
-                            chargerCost3 = chargercostInt3,
+                            chargerCost3 = chargerCostInt3,
 
-                            cost_of_electricty_per_month = costOfElec.toInt(),
-                            average_no_of_micro_bus_per_day = avgMb.toInt(),
-                            average_no_of_car_bus_per_day = avgCb.toInt(),
-                            any_challenges_or_issues_during_implementaion = anyChallenge
+                            electricityCostPerMonth = costOfElec.toInt(),
+                            microBusPerDay = avgMb.toInt(),
+                            carBusPerDay = avgCb.toInt(),
+                            challenges = anyChallenge
                         )
-                        Toast.makeText(context, "SAVED", Toast.LENGTH_SHORT).show()
+
+                        if (station == null) {
+                            // INSERT
+                            db?.insertCharger1(
+                                uuid = newStation.uuid,
+                                owner = newStation.owner,
+                                contact = newStation.contact,
+                                stationName = newStation.stationName,
+                                location = newStation.location,
+                                longitude = newStation.longitude,
+                                latitude = newStation.latitude,
+                                elevation = newStation.elevation,
+                                dateTime = newStation.dateTime,
+
+                                chargerCapacity1 = newStation.chargerCapacity1,
+                                charger1 = newStation.charger1.toLong(),
+                                chargerMake1 = newStation.chargerMake1,
+                                chargerType1 = newStation.chargerType1,
+                                chargerCost1 = newStation.chargerCost1,
+
+                                chargerCapacity2 = newStation.chargerCapacity2,
+                                charger2 = newStation.charger2.toLong(),
+                                chargerMake2 = newStation.chargerMake2,
+                                chargerType2 = newStation.chargerType2,
+                                chargerCost2 = newStation.chargerCost2,
+
+                                chargerCapacity3 = newStation.chargerCapacity3,
+                                charger3 = newStation.charger3.toLong(),
+                                chargerMake3 = newStation.chargerMake3,
+                                chargerType3 = newStation.chargerType3,
+                                chargerCost3 = newStation.chargerCost3,
+
+                                costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
+                                averageNoOfMicroBusPerDay = newStation.microBusPerDay,
+                                averageNoOfCarBusPerDay = newStation.carBusPerDay,
+                                anyChallengesOrIssuesDuringImplementaion = newStation.challenges
+                            )
+                            Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // UPDATE
+                            val updated = db?.updateChargingStation(newStation)
+                            if (updated == true) {
+                                Toast.makeText(context, "Station updated!", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else {
+                                Toast.makeText(context, "Update failed!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
 
                         context.startActivity(Intent(context, MainActivity::class.java))
                     } else {
-                        Toast.makeText(context, "All field are not filled", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT).show()
                     }
-                })
-                {
-                    Text(text = "SAVE")
+                }) {
+                    Text("Save")
                 }
             }
         }
     }
+}
+@Composable
+fun uidCreator(): String {
+    return UUID.randomUUID().toString().toUpperCase()
+
 }

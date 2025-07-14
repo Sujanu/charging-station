@@ -1,14 +1,26 @@
 package com.example.chargingstation.activites
 
-
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.runtime.*
+import androidx.core.content.ContextCompat
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import android.content.Context
 import androidx.activity.compose.setContent
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 import androidx.activity.enableEdgeToEdge
-import androidx.collection.emptyLongSet
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,10 +28,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -29,7 +44,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,13 +56,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import coil.compose.rememberAsyncImagePainter
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.ui.theme.ChargingStationTheme
+import java.io.File
+import java.io.InputStream
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +78,6 @@ class MainActivity : ComponentActivity() {
             ChargingStationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     MainScreen(db = dbHelper)
-//                    AllStationsListScreen(db =dbHelper)
                 }
             }
         }
@@ -82,7 +100,6 @@ fun MainScreen(db: ChargingStation? = null) {
                 title = { Text("Charging Station") })
         },
 
-
         /////////////////// **************** bottom bar *************** ///////////////////
         bottomBar = {
             BottomAppBar(
@@ -98,7 +115,6 @@ fun MainScreen(db: ChargingStation? = null) {
                     }
                 }
             )
-
         }
 
         /////////////////
@@ -114,11 +130,15 @@ fun MainScreen(db: ChargingStation? = null) {
 
             AllStationsListScreen(db)
 
+            CameraCaptureButton()
+
         }
     }
 }
+
 /////////////////// **************** Show Data **************** ///////////////////
 
+/// No Preview ///
 @Composable
 fun AllStationsListScreen(db: ChargingStation) {
 
@@ -149,28 +169,49 @@ fun AllStationsListScreen(db: ChargingStation) {
                     elevation = CardDefaults.cardElevation(4.dp),
 
                     ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
 
                         Text(
                             "Station: ${station.stationName}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                            style = MaterialTheme.typography.titleMedium,
+                            fontSize = 20.sp
+                            )
 
-                        Row {
-                            Button(onClick = {
-                                val intent = Intent(context, Station1::class.java)
-                                intent.putExtra("station_id", station.id) // pass station id
-                                context.startActivity(intent)
-                            }) {
-                                Text("Edit")
-                            }
+                        /////////////////// *************** Edit Data *************** ///////////////////
 
-                            Button(onClick = {
-                                stationToDelete = station.id
-                            }) {
-                                Text("Delete")
-                            }
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        IconButton(onClick = {
+                            val intent = Intent(context, Station1::class.java)
+                            intent.putExtra("station_id", station.id)
+                            context.startActivity(intent)
                         }
+                        )
+                        {
+                            Icon(
+                                modifier = Modifier
+                                    .size(20.dp),
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit"
+                            )
+                        }
+
+                        IconButton(onClick = {
+                            stationToDelete = station.id
+                        }
+                        )
+                        {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Delete"
+                            )
+                        }
+
                     }
                 }
             }
@@ -203,5 +244,98 @@ fun AllStationsListScreen(db: ChargingStation) {
                 }
             }
         )
+    }
+}
+
+@Preview
+@Composable
+fun CameraCaptureButton() {
+    val context = LocalContext.current
+    val activity = context as Activity
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var permissionGranted by remember { mutableStateOf(false) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            Toast.makeText(context, "Image saved to: $imageUri", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionGranted = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        permissionGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Button(onClick = {
+            if (permissionGranted) {
+                val photoFile = File(
+                    context.getExternalFilesDir(null),
+                    "camera_photo_${System.currentTimeMillis()}.jpg"
+                )
+
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    photoFile
+                )
+
+                imageUri = uri
+                cameraLauncher.launch(uri)
+            } else {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }) {
+            Text(text = "Open Camera")
+        }
+
+        // Show captured image preview
+        // Show captured image preview with border
+        imageUri?.let { uri ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .padding(top = 16.dp)
+                    .border(
+                        width = 2.dp,
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = "Captured Image",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
+    }
+}
+
+fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
+    return try {
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        inputStream?.use {
+            // Use ByteArrayOutputStream to efficiently read all bytes
+            val outputStream = ByteArrayOutputStream()
+            val buffer = ByteArray(4 * 1024) // 4KB buffer
+            var bytesRead: Int
+            while (it.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+            outputStream.toByteArray()
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null // Return null on error
     }
 }
