@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import com.example.chargingstation.model.ChargingStationData
+import java.sql.Blob
 
 class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME, null, 2) {
 
@@ -45,13 +46,15 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "cost_of_electricty_per_month INTEGER NOT NULL," +
                     "average_no_of_micro_bus_per_day INTEGER NOT NULL," +
                     "average_no_of_car_bus_per_day INTEGER NOT NULL," +
-                    "any_challenges_or_issues_during_implementaion TEXT NOT NULL)"
+                    "any_challenges_or_issues_during_implementaion TEXT NOT NULL," +
+                    "photo1 BLOB NOT NULL)"
         )
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
 
     }
+
 
     fun insertCharger1(
         uuid : String,
@@ -86,7 +89,10 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         costOfElectrictyEerMonth : Int,
         averageNoOfMicroBusPerDay : Int,
         averageNoOfCarBusPerDay : Int,
-        anyChallengesOrIssuesDuringImplementaion : String
+        anyChallengesOrIssuesDuringImplementaion : String,
+
+//        photo1 : Blob,
+//        photo2 : Blob
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -99,16 +105,19 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("latitude", latitude)
             put("elevation", elevation)
             put("dateTime", dateTime)
+
             put("chargerCapacity1", chargerCapacity1)
             put("chargerMake1", chargerMake1)
             put("charger1", charger1.toString()) // stores as Text
             put("chargerType1", chargerType1)
             put("chargerCost1", chargerCost1)
+
             put("chargerCapacity2", chargerCapacity2)
             put("chargerMake2", chargerMake2)
             put("charger2", charger2.toString()) // stores as Text
             put("chargerType2", chargerType2)
             put("chargerCost2", chargerCost2)
+
             put("chargerCapacity3", chargerCapacity3)
             put("chargerMake3", chargerMake3)
             put("charger3", charger3.toString()) // stores as Text
@@ -119,6 +128,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
             put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
             put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
+//
+//            put("photo1", photo1)
+//            put("photo 2", photo2)
         }
         val result = db.insert(CHARGING1, null, values)
 
@@ -171,7 +183,10 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                     microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
                     carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
-                    challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion"))
+                    challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion")),
+
+//                    photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
+//                    photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
                 )
                 stationList.add(station)
             } while (cursor.moveToNext())
@@ -227,7 +242,10 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                 electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                 microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
                 carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
-                challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion"))
+                challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion")),
+
+//                photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
+//                photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
             )
             cursor.close()
             station

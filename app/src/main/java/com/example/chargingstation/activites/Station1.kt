@@ -1,14 +1,19 @@
 package com.example.chargingstation.activites
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +40,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +50,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -99,9 +112,12 @@ class Station1 : ComponentActivity() {
 @Composable
 fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
 
+
+
     var stationName by remember { mutableStateOf(station?.stationName ?: "") }
 
-    var temp = uidCreator()
+    val temp = uidCreator()
+    val iduu by remember { mutableStateOf(station?.uuid) }
     var owner by remember { mutableStateOf(station?.owner ?: "") }
     var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
     var location by remember { mutableStateOf(station?.location ?: "") }
@@ -128,16 +144,31 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
     var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
 
+    var photo1 by remember { mutableStateOf<ByteArray?> (null)}
+    var photo2 by remember { mutableStateOf<ByteArray?>  (null)}
+
     var costOfElec by remember {
         mutableStateOf(
             station?.electricityCostPerMonth?.toString() ?: ""
         )
     }
+
     var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
     var avgCb by remember { mutableStateOf(station?.carBusPerDay?.toString() ?: "") }
     var anyChallenge by remember { mutableStateOf(station?.challenges ?: "") }
 
     val context = LocalContext.current
+
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -491,6 +522,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     .fillMaxWidth()
             )
 
+
+
             ///////////////////////////////////// Station Description /////////////////////////////////////
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -523,9 +556,11 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                         val chargerCostInt3 = chargerCost3.toLong()
 
+                        val iduuu = iduu.toString()
+
                         val newStation = ChargingStationData(
                             id = station?.id ?: 0,
-                            uuid = temp,
+                            uuid = iduuu,
                             owner = owner,
                             stationName = stationName,
                             contact = contactInt,
@@ -557,6 +592,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             microBusPerDay = avgMb.toInt(),
                             carBusPerDay = avgCb.toInt(),
                             challenges = anyChallenge
+//                            photo1 = photo1,
+//                            photo2 = photo2
                         )
 
                         if (station == null) {
@@ -593,7 +630,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                 costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
                                 averageNoOfMicroBusPerDay = newStation.microBusPerDay,
                                 averageNoOfCarBusPerDay = newStation.carBusPerDay,
-                                anyChallengesOrIssuesDuringImplementaion = newStation.challenges
+                                anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
+//                                photo1 = newStation.photo1,
+//                                photo2 = newStation.photo2
                             )
                             Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
                         } else {
@@ -618,8 +657,83 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
         }
     }
 }
+
 @Composable
 fun uidCreator(): String {
     return UUID.randomUUID().toString().toUpperCase()
 
 }
+
+fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
+    return try {
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        inputStream?.use {
+            val outputStream = ByteArrayOutputStream()
+            val buffer = ByteArray(4 * 1024) // 4KB buffer
+            var bytesRead: Int
+            while (it.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+            outputStream.toByteArray()
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null // Return null on error
+    }
+}
+
+//@Preview
+//@Composable
+//fun CameraCaptureButton() {
+//    val context = LocalContext.current
+//    var imageUri by remember { mutableStateOf<Uri?>(null) }
+//    var permissionGranted by remember { mutableStateOf(false) }
+//
+//    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+//        if (success) {
+//            Toast.makeText(context, "Image saved to: $imageUri", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+//
+//    val permissionLauncher = rememberLauncherForActivityResult(
+//        ActivityResultContracts.RequestPermission()
+//    ) { isGranted ->
+//        permissionGranted = isGranted
+//    }
+//
+//    LaunchedEffect(Unit) {
+//        permissionGranted = ContextCompat.checkSelfPermission(
+//            context, Manifest.permission.CAMERA
+//        ) == PackageManager.PERMISSION_GRANTED
+//    }
+//
+//    Column(modifier = Modifier.padding(16.dp)) {
+//        Button(onClick = {
+//            if (permissionGranted) {
+//                val photoFile = File(
+//                    context.getExternalFilesDir(null),
+//                    "camera_photo_${System.currentTimeMillis()}.jpg"
+//                )
+//
+//                val uri = FileProvider.getUriForFile(
+//                    context,
+//                    "${context.packageName}.provider",
+//                    photoFile
+//                )
+//
+//                imageUri = uri
+//                cameraLauncher.launch(uri)
+//            } else {
+//                permissionLauncher.launch(Manifest.permission.CAMERA)
+//            }
+//        }
+//        ) {
+//            Text(text = "Open Camera")
+//        }
+//
+//
+//
+//    }
+//}
+
+

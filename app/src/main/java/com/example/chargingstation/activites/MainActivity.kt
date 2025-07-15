@@ -5,20 +5,15 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import android.content.Context
 import androidx.activity.compose.setContent
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -56,7 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,7 +61,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import java.io.File
-import java.io.InputStream
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -179,7 +172,7 @@ fun AllStationsListScreen(db: ChargingStation) {
                             "Station: ${station.stationName}",
                             style = MaterialTheme.typography.titleMedium,
                             fontSize = 20.sp
-                            )
+                        )
 
                         /////////////////// *************** Edit Data *************** ///////////////////
 
@@ -247,37 +240,43 @@ fun AllStationsListScreen(db: ChargingStation) {
     }
 }
 
-@Preview
 @Composable
 fun CameraCaptureButton() {
     val context = LocalContext.current
-    val activity = context as Activity
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var permissionGranted by remember { mutableStateOf(false) }
 
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            Toast.makeText(context, "Image saved to: $imageUri", Toast.LENGTH_SHORT).show()
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                Toast.makeText(context, "Image captured", Toast.LENGTH_SHORT).show()
+            } else {
+                imageUri = null
+            }
         }
-    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         permissionGranted = isGranted
+        if (!isGranted) {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
     }
 
     LaunchedEffect(Unit) {
         permissionGranted = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.CAMERA
+            context,
+            Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Button(onClick = {
             if (permissionGranted) {
+                // ✅ Generate a new file each time
                 val photoFile = File(
-                    context.getExternalFilesDir(null),
+                    context.getExternalFilesDir("Pictures"),
                     "camera_photo_${System.currentTimeMillis()}.jpg"
                 )
 
@@ -293,49 +292,24 @@ fun CameraCaptureButton() {
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }) {
-            Text(text = "Open Camera")
+            Text("Open Camera")
         }
 
-        // Show captured image preview
-        // Show captured image preview with border
-        imageUri?.let { uri ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .padding(top = 16.dp)
-                    .border(
-                        width = 2.dp,
-                        color = Color.Gray,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-            ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(){
+
+            // Image Preview
+            imageUri?.let { uri ->
                 Image(
                     painter = rememberAsyncImagePainter(uri),
-                    contentDescription = "Captured Image",
-                    modifier = Modifier.fillMaxSize()
+                    contentDescription = "Captured Photo",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                    contentScale = ContentScale.Crop
                 )
-            }
         }
-
     }
-}
-
-fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
-    return try {
-        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-        inputStream?.use {
-            // Use ByteArrayOutputStream to efficiently read all bytes
-            val outputStream = ByteArrayOutputStream()
-            val buffer = ByteArray(4 * 1024) // 4KB buffer
-            var bytesRead: Int
-            while (it.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-            outputStream.toByteArray()
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null // Return null on error
     }
 }

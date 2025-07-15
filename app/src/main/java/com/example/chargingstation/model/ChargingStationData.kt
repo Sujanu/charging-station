@@ -1,20 +1,20 @@
 package com.example.chargingstation.model
 
-data class ChargingStationData(
+import java.sql.Blob
 
-    val Station: String,
+data class ChargingStationData(
 
     val id : Int,
     val uuid : String,
-    val owner:String,
-    val stationName: String,
-    val contact: Long,
+    val owner : String,
+    val stationName : String,
+    val contact : Long,
     val location : String,
 
     val longitude : Double,
     val latitude : Double,
-    val elevation: Double,
-    val dateTime: String,
+    val elevation : Double,
+    val dateTime : String,
 
     val charger1 : String,
     val chargerMake1 : String,
@@ -37,5 +37,9 @@ data class ChargingStationData(
     val electricityCostPerMonth : Int,
     val carBusPerDay : Int,
     val microBusPerDay :Int,
-    val challenges : String
+    val challenges : String,
+
+//    val photo1 : ByteArray,
+//    val photo2 : ByteArray
+
 )
