@@ -123,8 +123,6 @@ fun MainScreen(db: ChargingStation? = null) {
 
             AllStationsListScreen(db)
 
-            CameraCaptureButton()
-
         }
     }
 }
@@ -237,79 +235,5 @@ fun AllStationsListScreen(db: ChargingStation) {
                 }
             }
         )
-    }
-}
-
-@Composable
-fun CameraCaptureButton() {
-    val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var permissionGranted by remember { mutableStateOf(false) }
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                Toast.makeText(context, "Image captured", Toast.LENGTH_SHORT).show()
-            } else {
-                imageUri = null
-            }
-        }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        permissionGranted = isGranted
-        if (!isGranted) {
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        permissionGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Button(onClick = {
-            if (permissionGranted) {
-                // ✅ Generate a new file each time
-                val photoFile = File(
-                    context.getExternalFilesDir("Pictures"),
-                    "camera_photo_${System.currentTimeMillis()}.jpg"
-                )
-
-                val uri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.provider",
-                    photoFile
-                )
-
-                imageUri = uri
-                cameraLauncher.launch(uri)
-            } else {
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }) {
-            Text("Open Camera")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(){
-
-            // Image Preview
-            imageUri?.let { uri ->
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = "Captured Photo",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp),
-                    contentScale = ContentScale.Crop
-                )
-        }
-    }
     }
 }

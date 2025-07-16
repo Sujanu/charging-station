@@ -39,7 +39,7 @@ data class ChargingStationData(
     val microBusPerDay :Int,
     val challenges : String,
 
-//    val photo1 : ByteArray,
-//    val photo2 : ByteArray
+    val photo1 : ByteArray,
+    val photo2 : ByteArray
 
 )

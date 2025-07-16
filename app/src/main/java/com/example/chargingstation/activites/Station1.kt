@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +13,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,13 +24,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,13 +49,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import coil.compose.rememberAsyncImagePainter
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
@@ -113,11 +115,9 @@ class Station1 : ComponentActivity() {
 fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
 
 
-
     var stationName by remember { mutableStateOf(station?.stationName ?: "") }
 
     val temp = uidCreator()
-    val iduu by remember { mutableStateOf(station?.uuid) }
     var owner by remember { mutableStateOf(station?.owner ?: "") }
     var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
     var location by remember { mutableStateOf(station?.location ?: "") }
@@ -144,8 +144,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
     var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
 
-    var photo1 by remember { mutableStateOf<ByteArray?> (null)}
-    var photo2 by remember { mutableStateOf<ByteArray?>  (null)}
+    var photo1 by remember { mutableStateOf<ByteArray?>(null) }
+    var photo2 by remember { mutableStateOf<ByteArray?>(null) }
 
     var costOfElec by remember {
         mutableStateOf(
@@ -159,21 +159,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
     val context = LocalContext.current
 
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (!isGranted) {
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Charging Station Charger 1") },
+                title = { Text("Charging Station Info") },
                 actions = {
                     IconButton(onClick = {
                         context.startActivity(Intent(context, MainActivity::class.java))
@@ -208,7 +197,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             OutlinedTextField(
                 value = stationName,
                 onValueChange = { stationName = it },
-                label = { Text("Charging Station Name")},
+                label = { Text("Charging Station Name") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -518,10 +507,18 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 onValueChange = { anyChallenge = it },
                 singleLine = true,
                 label = { Text(text = "Any challenges or issues during implementation") },
-                        modifier = Modifier
+                modifier = Modifier
                     .fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            PhotoCaptureView(
+                photo1 = photo1,
+                photo2 = photo2,
+                onPhoto1Changed = {photo1 = it},
+                onPhoto2Changed = {photo2 = it}
+            )
 
 
             ///////////////////////////////////// Station Description /////////////////////////////////////
@@ -543,7 +540,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty() &&
                         charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
                         chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
-                        avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
+                        avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty() &&
+                        photo1!!.isNotEmpty() && photo2!!.isNotEmpty()
+
                     ) {
                         val contactInt = contact.toLong()
                         val longitudeDouble = longitude.toDouble()
@@ -556,94 +555,93 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                         val chargerCostInt3 = chargerCost3.toLong()
 
-                        val iduuu = iduu.toString()
+                        val uuid = temp.toString()
 
-                        val newStation = ChargingStationData(
-                            id = station?.id ?: 0,
-                            uuid = iduuu,
-                            owner = owner,
-                            stationName = stationName,
-                            contact = contactInt,
-                            location = location,
-                            longitude = longitudeDouble,
-                            latitude = latitudeDouble,
-                            elevation = elevationDouble,
-                            dateTime = dateTime,
 
-                            charger1 = charger1,
-                            chargerCapacity1 = chargerCapacity1,
-                            chargerMake1 = chargerMake1,
-                            chargerType1 = chargerType1,
-                            chargerCost1 = chargerCostInt1,
+                        val newStation = photo1?.let {
+                            photo2?.let { it1 ->
+                                ChargingStationData(
+                                    id = station?.id ?: 0,
+                                    uuid = uuid,
+                                    owner = owner,
+                                    stationName = stationName,
+                                    contact = contactInt,
+                                    location = location,
+                                    longitude = longitudeDouble,
+                                    latitude = latitudeDouble,
+                                    elevation = elevationDouble,
+                                    dateTime = dateTime,
 
-                            charger2 = charger2,
-                            chargerCapacity2 = chargerCapacity2,
-                            chargerMake2 = chargerMake2,
-                            chargerType2 = chargerType2,
-                            chargerCost2 = chargerCostInt2,
+                                    charger1 = charger1,
+                                    chargerCapacity1 = chargerCapacity1,
+                                    chargerMake1 = chargerMake1,
+                                    chargerType1 = chargerType1,
+                                    chargerCost1 = chargerCostInt1,
 
-                            charger3 = charger3,
-                            chargerCapacity3 = chargerCapacity3,
-                            chargerMake3 = chargerMake3,
-                            chargerType3 = chargerType3,
-                            chargerCost3 = chargerCostInt3,
+                                    charger2 = charger2,
+                                    chargerCapacity2 = chargerCapacity2,
+                                    chargerMake2 = chargerMake2,
+                                    chargerType2 = chargerType2,
+                                    chargerCost2 = chargerCostInt2,
 
-                            electricityCostPerMonth = costOfElec.toInt(),
-                            microBusPerDay = avgMb.toInt(),
-                            carBusPerDay = avgCb.toInt(),
-                            challenges = anyChallenge
-//                            photo1 = photo1,
-//                            photo2 = photo2
-                        )
+                                    charger3 = charger3,
+                                    chargerCapacity3 = chargerCapacity3,
+                                    chargerMake3 = chargerMake3,
+                                    chargerType3 = chargerType3,
+                                    chargerCost3 = chargerCostInt3,
+
+                                    electricityCostPerMonth = costOfElec.toInt(),
+                                    microBusPerDay = avgMb.toInt(),
+                                    carBusPerDay = avgCb.toInt(),
+                                    challenges = anyChallenge,
+                                    photo1 = photo1!!,
+                                    photo2 = photo2!!
+                                )
+                            }
+                        }
 
                         if (station == null) {
                             // INSERT
-                            db?.insertCharger1(
-                                uuid = newStation.uuid,
-                                owner = newStation.owner,
-                                contact = newStation.contact,
-                                stationName = newStation.stationName,
-                                location = newStation.location,
-                                longitude = newStation.longitude,
-                                latitude = newStation.latitude,
-                                elevation = newStation.elevation,
-                                dateTime = newStation.dateTime,
+                            if (newStation != null) {
+                                db?.insertCharger1(
+                                    uuid = newStation.uuid,
+                                    owner = newStation.owner,
+                                    contact = newStation.contact,
+                                    stationName = newStation.stationName,
+                                    location = newStation.location,
+                                    longitude = newStation.longitude,
+                                    latitude = newStation.latitude,
+                                    elevation = newStation.elevation,
+                                    dateTime = newStation.dateTime,
 
-                                chargerCapacity1 = newStation.chargerCapacity1,
-                                charger1 = newStation.charger1.toLong(),
-                                chargerMake1 = newStation.chargerMake1,
-                                chargerType1 = newStation.chargerType1,
-                                chargerCost1 = newStation.chargerCost1,
+                                    charger1 = newStation.charger1.toLong(),
+                                    chargerMake1 = newStation.chargerMake1,
+                                    chargerType1 = newStation.chargerType1,
+                                    chargerCost1 = newStation.chargerCost1,
+                                    chargerCapacity1 = newStation.chargerCapacity1,
 
-                                chargerCapacity2 = newStation.chargerCapacity2,
-                                charger2 = newStation.charger2.toLong(),
-                                chargerMake2 = newStation.chargerMake2,
-                                chargerType2 = newStation.chargerType2,
-                                chargerCost2 = newStation.chargerCost2,
+                                    charger2 = newStation.charger2.toLong(),
+                                    chargerMake2 = newStation.chargerMake2,
+                                    chargerType2 = newStation.chargerType2,
+                                    chargerCost2 = newStation.chargerCost2,
+                                    chargerCapacity2 = newStation.chargerCapacity2,
 
-                                chargerCapacity3 = newStation.chargerCapacity3,
-                                charger3 = newStation.charger3.toLong(),
-                                chargerMake3 = newStation.chargerMake3,
-                                chargerType3 = newStation.chargerType3,
-                                chargerCost3 = newStation.chargerCost3,
+                                    charger3 = newStation.charger3.toLong(),
+                                    chargerMake3 = newStation.chargerMake3,
+                                    chargerType3 = newStation.chargerType3,
+                                    chargerCost3 = newStation.chargerCost3,
+                                    chargerCapacity3 = newStation.chargerCapacity3,
 
-                                costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
-                                averageNoOfMicroBusPerDay = newStation.microBusPerDay,
-                                averageNoOfCarBusPerDay = newStation.carBusPerDay,
-                                anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
-//                                photo1 = newStation.photo1,
-//                                photo2 = newStation.photo2
-                            )
+                                    costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
+                                    averageNoOfMicroBusPerDay = newStation.microBusPerDay,
+                                    averageNoOfCarBusPerDay = newStation.carBusPerDay,
+                                    anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
+                                    photo1 = newStation.photo1,
+                                    photo2 = newStation.photo2
+                                )
+                            }
                             Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
                         } else {
-                            // UPDATE
-                            val updated = db?.updateChargingStation(newStation)
-                            if (updated == true) {
-                                Toast.makeText(context, "Station updated!", Toast.LENGTH_SHORT)
-                                    .show()
-                            } else {
-                                Toast.makeText(context, "Update failed!", Toast.LENGTH_SHORT).show()
-                            }
                         }
 
                         context.startActivity(Intent(context, MainActivity::class.java))
@@ -660,9 +658,151 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
 @Composable
 fun uidCreator(): String {
+
     return UUID.randomUUID().toString().toUpperCase()
 
 }
+
+@Composable
+fun PhotoCaptureView(
+    photo1: ByteArray?,
+    photo2: ByteArray?,
+    onPhoto1Changed: (ByteArray?) -> Unit,
+    onPhoto2Changed: (ByteArray?) -> Unit
+) {
+    // State to hold the URIs of the captured photos
+    var imageUri1 by remember { mutableStateOf<Uri?>(null) }
+    var imageUri2 by remember { mutableStateOf<Uri?>(null) }
+
+    // A variable to hold the URI of the photo being taken
+    var currentUri by remember { mutableStateOf<Uri?>(null) }
+
+    val context = LocalContext.current
+
+    // Camera launcher
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                currentUri?.let { uri ->
+                    val byteArray = uriToByteArray(context, uri)
+                    if (imageUri1 == null) {
+                        imageUri1 = uri
+                        onPhoto1Changed(byteArray)
+                    } else {
+                        imageUri2 = uri
+                        onPhoto2Changed(byteArray)
+                    }
+                }
+                Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    // Permission launcher
+    var permissionGranted by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionGranted = isGranted
+    }
+
+    // Check for camera permission on launch
+    LaunchedEffect(Unit) {
+        permissionGranted = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // Main layout
+    Column(
+        modifier = Modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // The two photo boxes
+        Row {
+            // Photo 1 Box
+            Box(
+                modifier = Modifier
+                    .size(width = 120.dp, height = 150.dp)
+                    .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+            ) {
+                // If photo1 is not null, display the image. Otherwise, show text.
+                if (photo1 != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = photo1),
+                        contentDescription = "Photo 1",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Photo 1")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .size(width = 120.dp, height = 150.dp)
+                    .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+            ) {
+                if (photo2 != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = photo2),
+                        contentDescription = "Photo 2",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Photo 2")
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Camera Button
+        Button(
+            // The button is enabled only if one of the photo slots is empty
+            enabled = photo1 == null || photo2 == null,
+            onClick = {
+                if (permissionGranted) {
+                    // Create a file and URI for the new photo
+                    val photoFile = File(
+                        context.getExternalFilesDir(null),
+                        "camera_photo_${System.currentTimeMillis()}.jpg"
+                    )
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        photoFile
+                    )
+                    // Store the uri to be used after the camera returns a result
+                    currentUri = uri
+                    cameraLauncher.launch(uri)
+                } else {
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            }
+        ) {
+            Text(text = "Open Camera")
+        }
+    }
+}
+
 
 fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
     return try {
@@ -681,59 +821,4 @@ fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
         null // Return null on error
     }
 }
-
-//@Preview
-//@Composable
-//fun CameraCaptureButton() {
-//    val context = LocalContext.current
-//    var imageUri by remember { mutableStateOf<Uri?>(null) }
-//    var permissionGranted by remember { mutableStateOf(false) }
-//
-//    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-//        if (success) {
-//            Toast.makeText(context, "Image saved to: $imageUri", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-//
-//    val permissionLauncher = rememberLauncherForActivityResult(
-//        ActivityResultContracts.RequestPermission()
-//    ) { isGranted ->
-//        permissionGranted = isGranted
-//    }
-//
-//    LaunchedEffect(Unit) {
-//        permissionGranted = ContextCompat.checkSelfPermission(
-//            context, Manifest.permission.CAMERA
-//        ) == PackageManager.PERMISSION_GRANTED
-//    }
-//
-//    Column(modifier = Modifier.padding(16.dp)) {
-//        Button(onClick = {
-//            if (permissionGranted) {
-//                val photoFile = File(
-//                    context.getExternalFilesDir(null),
-//                    "camera_photo_${System.currentTimeMillis()}.jpg"
-//                )
-//
-//                val uri = FileProvider.getUriForFile(
-//                    context,
-//                    "${context.packageName}.provider",
-//                    photoFile
-//                )
-//
-//                imageUri = uri
-//                cameraLauncher.launch(uri)
-//            } else {
-//                permissionLauncher.launch(Manifest.permission.CAMERA)
-//            }
-//        }
-//        ) {
-//            Text(text = "Open Camera")
-//        }
-//
-//
-//
-//    }
-//}
-
 

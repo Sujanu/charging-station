@@ -47,7 +47,8 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "average_no_of_micro_bus_per_day INTEGER NOT NULL," +
                     "average_no_of_car_bus_per_day INTEGER NOT NULL," +
                     "any_challenges_or_issues_during_implementaion TEXT NOT NULL," +
-                    "photo1 BLOB NOT NULL)"
+                    "photo1 BLOB NOT NULL," +
+                    "photo2 BLOB NOT NULL)"
         )
     }
 
@@ -90,9 +91,8 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         averageNoOfMicroBusPerDay : Int,
         averageNoOfCarBusPerDay : Int,
         anyChallengesOrIssuesDuringImplementaion : String,
-
-//        photo1 : Blob,
-//        photo2 : Blob
+        photo1 : ByteArray,
+        photo2 : ByteArray
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
@@ -128,9 +128,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
             put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
             put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
-//
-//            put("photo1", photo1)
-//            put("photo 2", photo2)
+
+            put("photo1", photo1)
+            put("photo2", photo2)
         }
         val result = db.insert(CHARGING1, null, values)
 
@@ -185,8 +185,8 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
                     challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion")),
 
-//                    photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
-//                    photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
+                    photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
+                    photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
                 )
                 stationList.add(station)
             } while (cursor.moveToNext())
@@ -244,8 +244,8 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                 carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
                 challenges = cursor.getString(cursor.getColumnIndexOrThrow("any_challenges_or_issues_during_implementaion")),
 
-//                photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
-//                photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
+                photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
+                photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
             )
             cursor.close()
             station
