@@ -679,6 +679,18 @@ fun PhotoCaptureView(
 
     val context = LocalContext.current
 
+    val imageUri: Uri? = photo1?.let {
+        byteArrayToUri(context, it, "photo1_preview.jpg")
+    }
+
+    if (imageUri != null) {
+        Image(
+            painter = rememberAsyncImagePainter(imageUri),
+            contentDescription = "Photo 1"
+        )
+    }
+
+
     // Camera launcher
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -819,6 +831,26 @@ fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
     } catch (e: IOException) {
         e.printStackTrace()
         null // Return null on error
+    }
+}
+
+fun byteArrayToUri(context: Context, byteArray: ByteArray, fileName: String): Uri? {
+    return try {
+        // Create a temporary file in app-specific external files directory
+        val file = File(context.getExternalFilesDir(null), fileName)
+
+        // Write the ByteArray to the file
+        file.outputStream().use { it.write(byteArray) }
+
+        // Get a content URI using FileProvider
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider", // Example: com.example.chargingstation.provider
+            file
+        )
+    } catch (e: IOException) {
+        e.printStackTrace()
+        null
     }
 }
 
