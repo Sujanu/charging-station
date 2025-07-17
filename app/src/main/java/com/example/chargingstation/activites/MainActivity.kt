@@ -178,7 +178,8 @@ fun AllStationsListScreen(db: ChargingStation) {
 
                         IconButton(onClick = {
                             val intent = Intent(context, Station1::class.java)
-                            intent.putExtra("station_id", station.id)
+                            val tex = station.id
+                            intent.putExtra("station_id", tex)
                             context.startActivity(intent)
                         }
                         )

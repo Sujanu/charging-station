@@ -5,6 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.example.chargingstation.model.ChargingStationData
 import java.sql.Blob
 
@@ -204,9 +206,11 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         return deleted
     }
 
+
     fun getStationById(id: Int): ChargingStationData? {
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT * FROM $CHARGING1 WHERE id = ?", arrayOf(id.toString()))
+
         return if (cursor.moveToFirst()) {
             val station = ChargingStationData(
 
@@ -247,6 +251,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                 photo1 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo1")),
                 photo2 = cursor.getBlob(cursor.getColumnIndexOrThrow("photo2"))
             )
+
             cursor.close()
             station
         } else {
@@ -290,6 +295,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_micro_bus_per_day", station.microBusPerDay)
             put("average_no_of_car_bus_per_day", station.carBusPerDay)
             put("any_challenges_or_issues_during_implementaion", station.challenges)
+
         }
 
         val updated = db.update(CHARGING1, contentValues, "id = ?", arrayOf(station.id.toString()))

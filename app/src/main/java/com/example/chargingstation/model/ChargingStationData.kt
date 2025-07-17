@@ -1,5 +1,6 @@
 package com.example.chargingstation.model
 
+import android.net.Uri
 import java.sql.Blob
 
 data class ChargingStationData(
@@ -40,6 +41,6 @@ data class ChargingStationData(
     val challenges : String,
 
     val photo1 : ByteArray,
-    val photo2 : ByteArray
+    val photo2 : ByteArray,
 
 )

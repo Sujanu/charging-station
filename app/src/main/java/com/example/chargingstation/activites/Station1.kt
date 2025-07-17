@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -89,7 +93,10 @@ class Station1 : ComponentActivity() {
         val dbHelper = ChargingStation(this)
         val stationId = intent.getIntExtra("station_id", -1)
 
-        val station = if (stationId != -1) dbHelper.getStationById(stationId) else null
+        val station = if (stationId != -1) {
+            dbHelper.getStationById(stationId)
+
+        } else{ null}
 
 
         val allStations = dbHelper.getAllChargingStations()
@@ -113,11 +120,9 @@ class Station1 : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
-
-
     var stationName by remember { mutableStateOf(station?.stationName ?: "") }
 
-    val temp = uidCreator()
+    val temp = station?.uuid ?: uidCreator()
     var owner by remember { mutableStateOf(station?.owner ?: "") }
     var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
     var location by remember { mutableStateOf(station?.location ?: "") }
@@ -144,20 +149,20 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
     var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
 
-    var photo1 by remember { mutableStateOf<ByteArray?>(null) }
-    var photo2 by remember { mutableStateOf<ByteArray?>(null) }
 
-    var costOfElec by remember {
-        mutableStateOf(
-            station?.electricityCostPerMonth?.toString() ?: ""
-        )
-    }
+    var costOfElec by remember {  mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
 
     var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
     var avgCb by remember { mutableStateOf(station?.carBusPerDay?.toString() ?: "") }
     var anyChallenge by remember { mutableStateOf(station?.challenges ?: "") }
 
+    var photo1 by remember { mutableStateOf(station?.photo1) }
+    var photo2 by remember { mutableStateOf(station?.photo2) }
+
+    DisplayPhotos(photo1, photo2)
+
     val context = LocalContext.current
+
 
     Scaffold(
         topBar = {
@@ -516,8 +521,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             PhotoCaptureView(
                 photo1 = photo1,
                 photo2 = photo2,
-                onPhoto1Changed = {photo1 = it},
-                onPhoto2Changed = {photo2 = it}
+                onPhoto1Changed = { photo1 = it },
+                onPhoto2Changed = { photo2 = it }
             )
 
 
@@ -555,8 +560,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                         val chargerCostInt3 = chargerCost3.toLong()
 
-                        val uuid = temp.toString()
-
+                        val uuid = temp
 
                         val newStation = photo1?.let {
                             photo2?.let { it1 ->
@@ -642,6 +646,15 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             }
                             Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
                         } else {
+                            // UPDATE
+                            if (newStation != null) {
+                                val updated = db?.updateChargingStation(newStation)
+                                if (updated == true) {
+                                    Toast.makeText(context, "Station updated!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Update failed!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
 
                         context.startActivity(Intent(context, MainActivity::class.java))
@@ -659,7 +672,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 @Composable
 fun uidCreator(): String {
 
-    return UUID.randomUUID().toString().toUpperCase()
+    return UUID.randomUUID().toString().uppercase()
 
 }
 
@@ -670,28 +683,19 @@ fun PhotoCaptureView(
     onPhoto1Changed: (ByteArray?) -> Unit,
     onPhoto2Changed: (ByteArray?) -> Unit
 ) {
-    // State to hold the URIs of the captured photos
+    var photo11 = photo1
+    var photo22 = photo2
+
     var imageUri1 by remember { mutableStateOf<Uri?>(null) }
     var imageUri2 by remember { mutableStateOf<Uri?>(null) }
-
-    // A variable to hold the URI of the photo being taken
     var currentUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Dialog control
+    var showDialog1 by remember { mutableStateOf(false) }
+    var showDialog2 by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
 
-    val imageUri: Uri? = photo1?.let {
-        byteArrayToUri(context, it, "photo1_preview.jpg")
-    }
-
-    if (imageUri != null) {
-        Image(
-            painter = rememberAsyncImagePainter(imageUri),
-            contentDescription = "Photo 1"
-        )
-    }
-
-
-    // Camera launcher
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
@@ -709,7 +713,6 @@ fun PhotoCaptureView(
             }
         }
 
-    // Permission launcher
     var permissionGranted by remember { mutableStateOf(false) }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -717,27 +720,28 @@ fun PhotoCaptureView(
         permissionGranted = isGranted
     }
 
-    // Check for camera permission on launch
     LaunchedEffect(Unit) {
         permissionGranted = ContextCompat.checkSelfPermission(
             context, Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    // Main layout
     Column(
         modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // The two photo boxes
         Row {
             // Photo 1 Box
             Box(
                 modifier = Modifier
                     .size(width = 120.dp, height = 150.dp)
                     .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+                    .clickable {
+                        if (photo1 != null) {
+                            showDialog1 = true
+                        }
+                    }
             ) {
-                // If photo1 is not null, display the image. Otherwise, show text.
                 if (photo1 != null) {
                     Image(
                         painter = rememberAsyncImagePainter(model = photo1),
@@ -759,10 +763,16 @@ fun PhotoCaptureView(
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            // Photo 2 Box
             Box(
                 modifier = Modifier
                     .size(width = 120.dp, height = 150.dp)
                     .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+                    .clickable {
+                        if (photo2 != null) {
+                            showDialog2 = true
+                        }
+                    }
             ) {
                 if (photo2 != null) {
                     Image(
@@ -786,13 +796,10 @@ fun PhotoCaptureView(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Camera Button
         Button(
-            // The button is enabled only if one of the photo slots is empty
             enabled = photo1 == null || photo2 == null,
             onClick = {
                 if (permissionGranted) {
-                    // Create a file and URI for the new photo
                     val photoFile = File(
                         context.getExternalFilesDir(null),
                         "camera_photo_${System.currentTimeMillis()}.jpg"
@@ -802,7 +809,6 @@ fun PhotoCaptureView(
                         "${context.packageName}.provider",
                         photoFile
                     )
-                    // Store the uri to be used after the camera returns a result
                     currentUri = uri
                     cameraLauncher.launch(uri)
                 } else {
@@ -810,8 +816,67 @@ fun PhotoCaptureView(
                 }
             }
         ) {
-            Text(text = "Open Camera")
+            Text("Open Camera")
         }
+    }
+
+    // Dialog for Photo 1
+    if (showDialog1 && photo1 != null) {
+        AlertDialog(
+            onDismissRequest = { showDialog1 = false },
+            confirmButton = {
+                Button(onClick = { showDialog1 = false }) {
+                    Text("Close")
+                }
+            },
+            dismissButton ={
+                Button(onClick = {
+                    onPhoto1Changed(null) // remove photo1
+                    showDialog1 = false
+
+                }) { Text("Delete Photo")}
+            } ,
+            title = { Text("Photo 1") },
+            text = {
+                val bitmap = BitmapFactory.decodeByteArray(photo1, 0, photo1.size)
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Photo 1 Fullscreen",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
+            }
+        )
+    }
+
+    // Dialog for Photo 2
+    if (showDialog2 && photo2 != null) {
+        AlertDialog(
+            onDismissRequest = { showDialog2 = false },
+            confirmButton = {
+                Button(onClick = { showDialog2 = false }) {
+                    Text("Close")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    onPhoto2Changed(null) // remove photo1
+                    showDialog2 = false
+                }) { Text("Delete Photo") }
+            },
+            title = { Text("Photo 2") },
+            text = {
+                val bitmap = BitmapFactory.decodeByteArray(photo2, 0, photo2.size)
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Photo 2 Fullscreen",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
+            }
+        )
     }
 }
 
@@ -834,23 +899,33 @@ fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
     }
 }
 
-fun byteArrayToUri(context: Context, byteArray: ByteArray, fileName: String): Uri? {
-    return try {
-        // Create a temporary file in app-specific external files directory
-        val file = File(context.getExternalFilesDir(null), fileName)
+@Composable
+fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
+    Column {
+        photo1?.let {
+            val bitmap1 = remember(it) { BitmapFactory.decodeByteArray(it, 0, it.size) }
+            Image(
+                bitmap = bitmap1.asImageBitmap(),
+                contentDescription = "Photo 1",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(200.dp)
+            )
+        }
 
-        // Write the ByteArray to the file
-        file.outputStream().use { it.write(byteArray) }
-
-        // Get a content URI using FileProvider
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider", // Example: com.example.chargingstation.provider
-            file
-        )
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
+        photo2?.let {
+            val bitmap2 = remember(it) { BitmapFactory.decodeByteArray(it, 0, it.size) }
+            Image(
+                bitmap = bitmap2.asImageBitmap(),
+                contentDescription = "Photo 2",
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(200.dp)
+            )
+        }
     }
 }
+
+
+
 
