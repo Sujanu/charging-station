@@ -5,10 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import com.example.chargingstation.activites.bitmapToByteArray
 import com.example.chargingstation.model.ChargingStationData
-import java.sql.Blob
 
 class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME, null, 2) {
 
@@ -97,6 +95,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         photo2 : ByteArray
     ) {
         val db = this.writableDatabase
+        val imageByteArray: ByteArray = bitmapToByteArray()
         val values = ContentValues().apply {
             put("uuid", uuid)
             put("owner", owner)
@@ -131,7 +130,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
             put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
 
-            put("photo1", photo1)
+            put("image_data", imageByteArray)
             put("photo2", photo2)
         }
         val result = db.insert(CHARGING1, null, values)

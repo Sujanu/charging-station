@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -518,12 +519,13 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            PhotoCaptureView(
-                photo1 = photo1,
-                photo2 = photo2,
-                onPhoto1Changed = { photo1 = it },
-                onPhoto2Changed = { photo2 = it }
-            )
+//            PhotoCaptureView()
+            CaptureImageAsBitmapScreen()
+//                photo1 = photo1,
+//                photo2 = photo2,
+//                onPhoto1Changed = { photo1 = it },
+//                onPhoto2Changed = { photo2 = it }
+//            )
 
 
             ///////////////////////////////////// Station Description /////////////////////////////////////
@@ -534,6 +536,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             Column {
 
                 Spacer(modifier = Modifier.height(8.dp))
+
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 Button(onClick = {
@@ -545,10 +548,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty() &&
                         charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty() &&
                         chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && costOfElec.isNotEmpty() &&
-                        avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty() &&
-                        photo1!!.isNotEmpty() && photo2!!.isNotEmpty()
-
-                    ) {
+                        avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty())
+                    {
                         val contactInt = contact.toLong()
                         val longitudeDouble = longitude.toDouble()
                         val latitudeDouble = latitude.toDouble()
@@ -671,21 +672,13 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
 @Composable
 fun uidCreator(): String {
-
     return UUID.randomUUID().toString().uppercase()
-
 }
 
-@Composable
-fun PhotoCaptureView(
-    photo1: ByteArray?,
-    photo2: ByteArray?,
-    onPhoto1Changed: (ByteArray?) -> Unit,
-    onPhoto2Changed: (ByteArray?) -> Unit
-) {
-    var photo11 = photo1
-    var photo22 = photo2
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+@Composable
+fun PhotoCaptureView() {
     var imageUri1 by remember { mutableStateOf<Uri?>(null) }
     var imageUri2 by remember { mutableStateOf<Uri?>(null) }
     var currentUri by remember { mutableStateOf<Uri?>(null) }
@@ -700,13 +693,10 @@ fun PhotoCaptureView(
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 currentUri?.let { uri ->
-                    val byteArray = uriToByteArray(context, uri)
                     if (imageUri1 == null) {
                         imageUri1 = uri
-                        onPhoto1Changed(byteArray)
-                    } else {
+                    } else if (imageUri2 == null) {
                         imageUri2 = uri
-                        onPhoto2Changed(byteArray)
                     }
                 }
                 Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
@@ -735,16 +725,16 @@ fun PhotoCaptureView(
             Box(
                 modifier = Modifier
                     .size(width = 120.dp, height = 150.dp)
-                    .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+                    .border(width = 2.dp, color = Color.Black, shape = RectangleShape)
                     .clickable {
-                        if (photo1 != null) {
+                        if (imageUri1 != null) {
                             showDialog1 = true
                         }
                     }
             ) {
-                if (photo1 != null) {
+                if (imageUri1 != null) {
                     Image(
-                        painter = rememberAsyncImagePainter(model = photo1),
+                        painter = rememberAsyncImagePainter(model = imageUri1),
                         contentDescription = "Photo 1",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -767,16 +757,16 @@ fun PhotoCaptureView(
             Box(
                 modifier = Modifier
                     .size(width = 120.dp, height = 150.dp)
-                    .border(width = 2.dp, color = Color.Red, shape = RectangleShape)
+                    .border(width = 2.dp, color = Color.Black, shape = RectangleShape)
                     .clickable {
-                        if (photo2 != null) {
+                        if (imageUri2 != null) {
                             showDialog2 = true
                         }
                     }
             ) {
-                if (photo2 != null) {
+                if (imageUri2 != null) {
                     Image(
-                        painter = rememberAsyncImagePainter(model = photo2),
+                        painter = rememberAsyncImagePainter(model = imageUri2),
                         contentDescription = "Photo 2",
                         modifier = Modifier.fillMaxSize()
                     )
@@ -797,7 +787,7 @@ fun PhotoCaptureView(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            enabled = photo1 == null || photo2 == null,
+            enabled = imageUri1 == null || imageUri2 == null,
             onClick = {
                 if (permissionGranted) {
                     val photoFile = File(
@@ -821,7 +811,7 @@ fun PhotoCaptureView(
     }
 
     // Dialog for Photo 1
-    if (showDialog1 && photo1 != null) {
+    if (showDialog1 && imageUri1 != null) {
         AlertDialog(
             onDismissRequest = { showDialog1 = false },
             confirmButton = {
@@ -829,18 +819,18 @@ fun PhotoCaptureView(
                     Text("Close")
                 }
             },
-            dismissButton ={
+            dismissButton = {
                 Button(onClick = {
-                    onPhoto1Changed(null) // remove photo1
+                    imageUri1 = null
                     showDialog1 = false
-
-                }) { Text("Delete Photo")}
-            } ,
+                }) {
+                    Text("Delete Photo")
+                }
+            },
             title = { Text("Photo 1") },
             text = {
-                val bitmap = BitmapFactory.decodeByteArray(photo1, 0, photo1.size)
                 Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    painter = rememberAsyncImagePainter(model = imageUri1),
                     contentDescription = "Photo 1 Fullscreen",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -851,7 +841,7 @@ fun PhotoCaptureView(
     }
 
     // Dialog for Photo 2
-    if (showDialog2 && photo2 != null) {
+    if (showDialog2 && imageUri2 != null) {
         AlertDialog(
             onDismissRequest = { showDialog2 = false },
             confirmButton = {
@@ -861,15 +851,16 @@ fun PhotoCaptureView(
             },
             dismissButton = {
                 Button(onClick = {
-                    onPhoto2Changed(null) // remove photo1
+                    imageUri2 = null
                     showDialog2 = false
-                }) { Text("Delete Photo") }
+                }) {
+                    Text("Delete Photo")
+                }
             },
             title = { Text("Photo 2") },
             text = {
-                val bitmap = BitmapFactory.decodeByteArray(photo2, 0, photo2.size)
                 Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    painter = rememberAsyncImagePainter(model = imageUri2),
                     contentDescription = "Photo 2 Fullscreen",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -880,24 +871,7 @@ fun PhotoCaptureView(
     }
 }
 
-
-fun uriToByteArray(context: Context, uri: Uri): ByteArray? {
-    return try {
-        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-        inputStream?.use {
-            val outputStream = ByteArrayOutputStream()
-            val buffer = ByteArray(4 * 1024) // 4KB buffer
-            var bytesRead: Int
-            while (it.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-            outputStream.toByteArray()
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null // Return null on error
-    }
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @Composable
 fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
@@ -926,6 +900,75 @@ fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
     }
 }
 
+@Composable
+fun CaptureImageAsBitmapScreen() {
+    val context = LocalContext.current
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var byteArray by remember { mutableStateOf<ByteArray?>(null) }
 
+    // Create a file for the photo
+    val photoFile = File(
+        context.getExternalFilesDir(null),
+        "camera_photo_${System.currentTimeMillis()}.jpg"
+    )
 
+    val uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        photoFile
+    )
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                val newBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+                bitmap = newBitmap
+
+                // Convert to byte array only when needed
+                val blob = bitmapToByteArray(newBitmap)
+                byteArray = blob
+
+                Toast.makeText(context, "Image captured", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Photo was not taken", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap!!.asImageBitmap(),
+                contentDescription = "Captured Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .padding(vertical = 16.dp)
+            )
+        }
+
+        Button(onClick = {
+            launcher.launch(uri)
+        }) {
+            Text("Take Picture")
+        }
+
+        // Optional: Show that byte array is ready
+        if (byteArray != null) {
+            Text(text = "Image converted to byte array (${byteArray!!.size} bytes)")
+        }
+    }
+}
+
+fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+    return outputStream.toByteArray()
+}
