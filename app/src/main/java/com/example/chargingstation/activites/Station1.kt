@@ -1,9 +1,6 @@
 package com.example.chargingstation.activites
 
-import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -16,25 +13,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,31 +38,27 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import coil.compose.rememberAsyncImagePainter
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -78,18 +67,6 @@ import java.util.UUID
 class Station1 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
-        }
 
         val dbHelper = ChargingStation(this)
         val stationId = intent.getIntExtra("station_id", -1)
@@ -121,34 +98,34 @@ class Station1 : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
-    var stationName by remember { mutableStateOf(station?.stationName ?: "") }
-
     val temp = station?.uuid ?: uidCreator()
+
+    var stationName by remember { mutableStateOf(station?.stationName ?: "") }
     var owner by remember { mutableStateOf(station?.owner ?: "") }
     var contact by remember { mutableStateOf(station?.contact?.toString() ?: "") }
     var location by remember { mutableStateOf(station?.location ?: "") }
-    var latitude by remember { mutableStateOf(station?.latitude?.toString() ?: "") }
     var longitude by remember { mutableStateOf(station?.longitude?.toString() ?: "") }
     var elevation by remember { mutableStateOf(station?.elevation?.toString() ?: "") }
     var dateTime by remember { mutableStateOf(station?.dateTime ?: "") }
+    var latitude by remember { mutableStateOf(station?.latitude?.toString() ?: "") }
 
     var charger1 by remember { mutableStateOf(station?.charger1 ?: "") }
-    var chargerCapacity1 by remember { mutableStateOf(station?.chargerCapacity1 ?: "") }
     var chargerMake1 by remember { mutableStateOf(station?.chargerMake1 ?: "") }
     var chargerType1 by remember { mutableStateOf(station?.chargerType1 ?: "") }
-    var chargerCost1 by remember { mutableStateOf(station?.chargerCost1?.toString() ?: "") }
+    var chargerCost1 by remember { mutableStateOf(station?.chargerCost1 ?.toString() ?: "") }
+    var chargerCapacity1 by remember { mutableStateOf(station?.chargerCapacity1 ?: "") }
 
     var charger2 by remember { mutableStateOf(station?.charger2 ?: "") }
-    var chargerCapacity2 by remember { mutableStateOf(station?.chargerCapacity2 ?: "") }
     var chargerMake2 by remember { mutableStateOf(station?.chargerMake2 ?: "") }
     var chargerType2 by remember { mutableStateOf(station?.chargerType2 ?: "") }
     var chargerCost2 by remember { mutableStateOf(station?.chargerCost2?.toString() ?: "") }
+    var chargerCapacity2 by remember { mutableStateOf(station?.chargerCapacity2 ?: "") }
 
     var charger3 by remember { mutableStateOf(station?.charger3 ?: "") }
-    var chargerCapacity3 by remember { mutableStateOf(station?.chargerCapacity3 ?: "") }
     var chargerMake3 by remember { mutableStateOf(station?.chargerMake3 ?: "") }
     var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
     var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
+    var chargerCapacity3 by remember { mutableStateOf(station?.chargerCapacity3 ?: "") }
 
 
     var costOfElec by remember {  mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
@@ -160,7 +137,43 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var photo1 by remember { mutableStateOf(station?.photo1) }
     var photo2 by remember { mutableStateOf(station?.photo2) }
 
-    DisplayPhotos(photo1, photo2)
+    val focusManager = LocalFocusManager.current
+
+    val stationNameFocusRequester = remember { FocusRequester() }
+    val ownerFocusRequester = remember { FocusRequester() }
+    val contactFocusRequester = remember { FocusRequester() }
+    val locationFocusRequester = remember { FocusRequester() }
+
+    val charger1Focus = remember { FocusRequester() }
+    val chargerCapacity1Focus = remember { FocusRequester() }
+    val chargerMake1Focus = remember { FocusRequester() }
+    val chargerType1Focus = remember { FocusRequester() }
+    val chargerCost1Focus = remember { FocusRequester() }
+
+    val charger2Focus = remember { FocusRequester() }
+    val chargerCapacity2Focus = remember { FocusRequester() }
+    val chargerMake2Focus = remember { FocusRequester() }
+    val chargerType2Focus = remember { FocusRequester() }
+    val chargerCost2Focus = remember { FocusRequester() }
+
+    val charger3Focus = remember { FocusRequester() }
+    val chargerCapacity3Focus = remember { FocusRequester() }
+    val chargerMake3Focus = remember { FocusRequester() }
+    val chargerType3Focus = remember { FocusRequester() }
+    val chargerCost3Focus = remember { FocusRequester() }
+
+    val electricityCostFocus = remember { FocusRequester() }
+    val avgMbFocus = remember { FocusRequester() }
+    val avgCbFocus = remember { FocusRequester() }
+    val anyChallengeFocus = remember { FocusRequester() }
+
+
+    CaptureImageAsBitmapScreen(
+        initialPhoto1 = photo1,
+        initialPhoto2 = photo2,
+        onPhoto1Captured = { photo1 = it },
+        onPhoto2Captured = { photo2 = it }
+    )
 
     val context = LocalContext.current
 
@@ -180,7 +193,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             contentDescription = "Home"
                         )
                     }
-
                 }
             )
         }
@@ -205,20 +217,24 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 onValueChange = { stationName = it },
                 label = { Text("Charging Station Name") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(stationNameFocusRequester),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { ownerFocusRequester.requestFocus() })
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = owner,
                 onValueChange = { owner = it },
                 label = { Text("Owner Name") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(ownerFocusRequester),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { contactFocusRequester.requestFocus() })
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = contact,
@@ -226,27 +242,33 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 label = { Text("Contact No.") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Phone
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Next
                 ),
+                keyboardActions = KeyboardActions(onNext = { locationFocusRequester.requestFocus() }),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .focusRequester(contactFocusRequester)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
                 label = { Text("Location") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { charger1Focus.requestFocus() }),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(locationFocusRequester)
             )
+
+
             Box(
                 modifier = Modifier,
             ) {
 
                 Column {
-
 
                     Button(onClick = {
                         val currentDateTime =
@@ -262,7 +284,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             elevation = String.format(Locale.US, "%.2f", elev)
                         }
 
-                    })
+                    },
+                        modifier = Modifier.focusRequester(locationFocusRequester)
+                    )
                     {
                         Text("Get GPS Location")
                     }
@@ -316,49 +340,52 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 value = charger1,
                 onValueChange = { charger1 = it },
                 label = { Text("Charger No ") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCapacity1Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(charger1Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-
 
             OutlinedTextField(
                 value = chargerCapacity1,
                 onValueChange = { chargerCapacity1 = it },
                 label = { Text("Charger Capacity ") },
                 singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerMake1Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity1Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerMake1,
                 onValueChange = { chargerMake1 = it },
-                label = { Text("Charger made") },
+                label = { Text("Charger Made") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerType1Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake1Focus)
             )
 
             OutlinedTextField(
                 value = chargerType1,
                 onValueChange = { chargerType1 = it },
-                label = { Text("Charger type ") },
+                label = { Text("Charger Type") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCost1Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerType1Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCost1,
                 onValueChange = { chargerCost1 = it },
                 label = { Text("Charger Cost") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { charger2Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost1Focus)
             )
+
 
             ///////////////////////////////////// 1 /////////////////////////////////////
 
@@ -371,48 +398,55 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             OutlinedTextField(
                 value = charger2,
                 onValueChange = { charger2 = it },
-                label = { Text("Charger No ") },
+                label = { Text("Charger No 2") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCapacity2Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(charger2Focus)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCapacity2,
                 onValueChange = { chargerCapacity2 = it },
-                label = { Text("Charger Capacity ") },
+                label = { Text("Charger Capacity 2") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerMake2Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity2Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerMake2,
                 onValueChange = { chargerMake2 = it },
-                label = { Text("Charger made") },
+                label = { Text("Charger Made 2") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerType2Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake2Focus)
             )
 
             OutlinedTextField(
                 value = chargerType2,
                 onValueChange = { chargerType2 = it },
-                label = { Text("Charger type ") },
+                label = { Text("Charger Type 2") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCost2Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerType2Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCost2,
                 onValueChange = { chargerCost2 = it },
-                label = { Text("Charger Cost") },
+                label = { Text("Charger Cost 2") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { charger3Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost2Focus)
             )
+
+
+
             ///////////////////////////////////// 2 /////////////////////////////////////
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -424,50 +458,53 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
             OutlinedTextField(
                 value = charger3,
                 onValueChange = { charger3 = it },
-                label = { Text("Charger No ") },
+                label = { Text("Charger No 3") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-
-                modifier = Modifier.fillMaxWidth()
-
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCapacity3Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(charger3Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCapacity3,
                 onValueChange = { chargerCapacity3 = it },
+                label = { Text("Charger Capacity 3") },
                 singleLine = true,
-                label = { Text("Charger Capacity ") },
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerMake3Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity3Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerMake3,
                 onValueChange = { chargerMake3 = it },
-                label = { Text("Charger made") },
+                label = { Text("Charger Made 3") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerType3Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake3Focus)
             )
 
             OutlinedTextField(
                 value = chargerType3,
                 onValueChange = { chargerType3 = it },
-                label = { Text("Charger type ") },
+                label = { Text("Charger Type 3") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { chargerCost3Focus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerType3Focus)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = chargerCost3,
                 onValueChange = { chargerCost3 = it },
-                label = { Text("Charger Cost") },
+                label = { Text("Charger Cost 3") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { electricityCostFocus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost3Focus)
             )
+
             ///////////////////////////////////////  3 ///////////////////////////////////////
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -481,52 +518,49 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                 onValueChange = { costOfElec = it },
                 label = { Text("Cost of Electricity per month ") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier
-                    .fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { avgMbFocus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(electricityCostFocus)
             )
 
             OutlinedTextField(
                 value = avgMb,
                 onValueChange = { avgMb = it },
-                label = { Text(text = "Average no. of Micro bus per day") },
+                label = { Text("Average no. of Micro bus per day") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-
-                modifier = Modifier
-                    .fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { avgCbFocus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(avgMbFocus)
             )
-
 
             OutlinedTextField(
                 value = avgCb,
                 onValueChange = { avgCb = it },
-                label = { Text(text = "Average no. of Car bus per day") },
+                label = { Text("Average no. of Car bus per day") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = { anyChallengeFocus.requestFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(avgCbFocus)
             )
 
             OutlinedTextField(
                 value = anyChallenge,
                 onValueChange = { anyChallenge = it },
+                label = { Text("Any challenges or issues during implementation") },
                 singleLine = true,
-                label = { Text(text = "Any challenges or issues during implementation") },
-                modifier = Modifier
-                    .fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                modifier = Modifier.fillMaxWidth().focusRequester(anyChallengeFocus)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            PhotoCaptureView()
-            CaptureImageAsBitmapScreen()
-//                photo1 = photo1,
-//                photo2 = photo2,
-//                onPhoto1Changed = { photo1 = it },
-//                onPhoto2Changed = { photo2 = it }
-//            )
-
+            CaptureImageAsBitmapScreen(
+                initialPhoto1 = photo1,
+                initialPhoto2 = photo2,
+                onPhoto1Captured = { photo1 = it },
+                onPhoto2Captured = { photo2 = it }
+            )
 
             ///////////////////////////////////// Station Description /////////////////////////////////////
 
@@ -675,266 +709,57 @@ fun uidCreator(): String {
     return UUID.randomUUID().toString().uppercase()
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-@Composable
-fun PhotoCaptureView() {
-    var imageUri1 by remember { mutableStateOf<Uri?>(null) }
-    var imageUri2 by remember { mutableStateOf<Uri?>(null) }
-    var currentUri by remember { mutableStateOf<Uri?>(null) }
-
-    // Dialog control
-    var showDialog1 by remember { mutableStateOf(false) }
-    var showDialog2 by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                currentUri?.let { uri ->
-                    if (imageUri1 == null) {
-                        imageUri1 = uri
-                    } else if (imageUri2 == null) {
-                        imageUri2 = uri
-                    }
-                }
-                Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-    var permissionGranted by remember { mutableStateOf(false) }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        permissionGranted = isGranted
-    }
-
-    LaunchedEffect(Unit) {
-        permissionGranted = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    Column(
-        modifier = Modifier.padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row {
-            // Photo 1 Box
-            Box(
-                modifier = Modifier
-                    .size(width = 120.dp, height = 150.dp)
-                    .border(width = 2.dp, color = Color.Black, shape = RectangleShape)
-                    .clickable {
-                        if (imageUri1 != null) {
-                            showDialog1 = true
-                        }
-                    }
-            ) {
-                if (imageUri1 != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(model = imageUri1),
-                        contentDescription = "Photo 1",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Photo 1")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Photo 2 Box
-            Box(
-                modifier = Modifier
-                    .size(width = 120.dp, height = 150.dp)
-                    .border(width = 2.dp, color = Color.Black, shape = RectangleShape)
-                    .clickable {
-                        if (imageUri2 != null) {
-                            showDialog2 = true
-                        }
-                    }
-            ) {
-                if (imageUri2 != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(model = imageUri2),
-                        contentDescription = "Photo 2",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Photo 2")
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            enabled = imageUri1 == null || imageUri2 == null,
-            onClick = {
-                if (permissionGranted) {
-                    val photoFile = File(
-                        context.getExternalFilesDir(null),
-                        "camera_photo_${System.currentTimeMillis()}.jpg"
-                    )
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.provider",
-                        photoFile
-                    )
-                    currentUri = uri
-                    cameraLauncher.launch(uri)
-                } else {
-                    permissionLauncher.launch(Manifest.permission.CAMERA)
-                }
-            }
-        ) {
-            Text("Open Camera")
-        }
-    }
-
-    // Dialog for Photo 1
-    if (showDialog1 && imageUri1 != null) {
-        AlertDialog(
-            onDismissRequest = { showDialog1 = false },
-            confirmButton = {
-                Button(onClick = { showDialog1 = false }) {
-                    Text("Close")
-                }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    imageUri1 = null
-                    showDialog1 = false
-                }) {
-                    Text("Delete Photo")
-                }
-            },
-            title = { Text("Photo 1") },
-            text = {
-                Image(
-                    painter = rememberAsyncImagePainter(model = imageUri1),
-                    contentDescription = "Photo 1 Fullscreen",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                )
-            }
-        )
-    }
-
-    // Dialog for Photo 2
-    if (showDialog2 && imageUri2 != null) {
-        AlertDialog(
-            onDismissRequest = { showDialog2 = false },
-            confirmButton = {
-                Button(onClick = { showDialog2 = false }) {
-                    Text("Close")
-                }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    imageUri2 = null
-                    showDialog2 = false
-                }) {
-                    Text("Delete Photo")
-                }
-            },
-            title = { Text("Photo 2") },
-            text = {
-                Image(
-                    painter = rememberAsyncImagePainter(model = imageUri2),
-                    contentDescription = "Photo 2 Fullscreen",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                )
-            }
-        )
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @Composable
-fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
-    Column {
-        photo1?.let {
-            val bitmap1 = remember(it) { BitmapFactory.decodeByteArray(it, 0, it.size) }
-            Image(
-                bitmap = bitmap1.asImageBitmap(),
-                contentDescription = "Photo 1",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(200.dp)
-            )
-        }
-
-        photo2?.let {
-            val bitmap2 = remember(it) { BitmapFactory.decodeByteArray(it, 0, it.size) }
-            Image(
-                bitmap = bitmap2.asImageBitmap(),
-                contentDescription = "Photo 2",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(200.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun CaptureImageAsBitmapScreen() {
+fun CaptureImageAsBitmapScreen(
+    initialPhoto1: ByteArray?,
+    initialPhoto2: ByteArray?,
+    onPhoto1Captured: (ByteArray?) -> Unit,
+    onPhoto2Captured: (ByteArray?) -> Unit
+) {
     val context = LocalContext.current
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var byteArray by remember { mutableStateOf<ByteArray?>(null) }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Create a file for the photo
-    val photoFile = File(
-        context.getExternalFilesDir(null),
-        "camera_photo_${System.currentTimeMillis()}.jpg"
-    )
-
-    val uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        photoFile
-    )
+    var byteArray1 by remember { mutableStateOf(initialPhoto1) }
+    var byteArray2 by remember { mutableStateOf(initialPhoto2) }
+    var isCapturingFirstPhoto by remember { mutableStateOf(true) }
 
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
-            if (success) {
-                val newBitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
-                bitmap = newBitmap
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && photoUri != null) {
+            val inputStream = context.contentResolver.openInputStream(photoUri!!)
+            val newBitmap = BitmapFactory.decodeStream(inputStream)
 
-                // Convert to byte array only when needed
-                val blob = bitmapToByteArray(newBitmap)
-                byteArray = blob
-
-                Toast.makeText(context, "Image captured", Toast.LENGTH_SHORT).show()
+            if (newBitmap != null) {
+                val compressedByteArray = bitmapToByteArray(newBitmap)
+                if (isCapturingFirstPhoto) {
+                    byteArray1 = compressedByteArray
+                    onPhoto1Captured(compressedByteArray)
+                } else {
+                    byteArray2 = compressedByteArray
+                    onPhoto2Captured(compressedByteArray)
+                }
             } else {
-                Toast.makeText(context, "Photo was not taken", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to decode image", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            Toast.makeText(context, "Photo was not taken", Toast.LENGTH_SHORT).show()
         }
-    )
+    }
+
+    fun takePhoto(isFirst: Boolean) {
+        isCapturingFirstPhoto = isFirst
+        val file = File(context.cacheDir, "camera_photo_${System.currentTimeMillis()}.jpg")
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            file
+        )
+        photoUri = uri
+        launcher.launch(uri)
+    }
 
     Column(
         modifier = Modifier
@@ -942,33 +767,95 @@ fun CaptureImageAsBitmapScreen() {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        PhotoDisplay(
+            label = "Photo 1",
+            byteArray = byteArray1,
+            onDelete = {
+                byteArray1 = null
+                onPhoto1Captured(null)
+            }
+        )
+
+        Button(
+            onClick = { takePhoto(true) },
+            enabled = byteArray1 == null,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) { Text("Capture First Photo") }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PhotoDisplay(
+            label = "Photo 2",
+            byteArray = byteArray2,
+            onDelete = {
+                byteArray2 = null
+                onPhoto2Captured(null)
+            }
+        )
+
+        Button(
+            onClick = { takePhoto(false) },
+            enabled = byteArray1 != null && byteArray2 == null,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) { Text("Capture Second Photo") }
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? { // Return nullable Bitmap?
+    return try {
+        BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+    } catch (e: Exception) {
+         Log.e("ImageConversion", "Failed to decode byte array", e)
+        null
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+    val stream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 60, stream)
+    return stream.toByteArray()
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@Composable
+private fun PhotoDisplay(label: String, byteArray: ByteArray?, onDelete: () -> Unit) {
+    if (byteArray != null) {
+        // Use our safe conversion function
+        val bitmap = remember(byteArray) { byteArrayToBitmap(byteArray) }
 
         if (bitmap != null) {
-            Image(
-                bitmap = bitmap!!.asImageBitmap(),
-                contentDescription = "Captured Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .padding(vertical = 16.dp)
-            )
-        }
-
-        Button(onClick = {
-            launcher.launch(uri)
-        }) {
-            Text("Take Picture")
-        }
-
-        // Optional: Show that byte array is ready
-        if (byteArray != null) {
-            Text(text = "Image converted to byte array (${byteArray!!.size} bytes)")
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = label,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .padding(8.dp)
+                )
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete $label")
+                }
+            }
+        } else {
+            // Show an error if the byte array is invalid
+            Text("Error displaying $label. Data might be corrupt.")
         }
     }
 }
 
-fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
-    val outputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-    return outputStream.toByteArray()
-}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

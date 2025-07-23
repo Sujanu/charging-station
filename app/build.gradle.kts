@@ -66,5 +66,6 @@ dependencies {
     implementation(libs.play.services.location.v2101)
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
-
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.compose.material:material-icons-extended:1.6.1")
 }

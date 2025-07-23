@@ -4,22 +4,25 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.provider.ContactsContract.CommonDataKinds.Email
 import android.util.Log
 import com.example.chargingstation.activites.bitmapToByteArray
 import com.example.chargingstation.model.ChargingStationData
+import com.example.chargingstation.model.UserData
 
 class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME, null, 2) {
 
     companion object {
         const val DATABSENAME = "chargingStation.db"
         const val CHARGING1 = "chargerStation1"
+        const val USERTABLE = "userInfo"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(
             "CREATE TABLE $CHARGING1(" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "uuid TEXT NOT NULL,"+
+                    "uuid TEXT NOT NULL," +
                     "owner TEXT NOT NULL," +
                     "station_name TEXT NOT NULL," +
                     "contact LONG not null," +
@@ -50,52 +53,85 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "photo1 BLOB NOT NULL," +
                     "photo2 BLOB NOT NULL)"
         )
+
+        db?.execSQL(
+            "CREATE TABLE $USERTABLE(" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "username TEXT NOT NULL," +
+                    "email TEXT NOT NULL,"+
+                    "phone LONG NOT NULL,"+
+                    "password TEXT NOT NULL)"
+        )
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
 
     }
 
+    fun insertUser(
+        username: String,
+        password: String,
+        email: String,
+        phone : Long
 
-    fun insertCharger1(
-        uuid : String,
-        owner : String,
-
-        stationName : String,
-        contact : Long,
-        location : String,
-        longitude : Double,
-        latitude : Double,
-        elevation : Double,
-        dateTime : String,
-
-        chargerCapacity1 : String,
-        charger1 : Long,
-        chargerMake1 : String,
-        chargerType1 : String,
-        chargerCost1 : Long,
-
-        chargerCapacity2 : String,
-        charger2 : Long,
-        chargerMake2 : String,
-        chargerType2 : String,
-        chargerCost2 : Long,
-
-        chargerCapacity3 : String,
-        charger3 : Long,
-        chargerMake3 : String,
-        chargerType3 : String,
-        chargerCost3 : Long,
-
-        costOfElectrictyEerMonth : Int,
-        averageNoOfMicroBusPerDay : Int,
-        averageNoOfCarBusPerDay : Int,
-        anyChallengesOrIssuesDuringImplementaion : String,
-        photo1 : ByteArray,
-        photo2 : ByteArray
     ) {
         val db = this.writableDatabase
-        val imageByteArray: ByteArray = bitmapToByteArray()
+        val values = ContentValues().apply {
+            put("username", username)
+            put("password", password)
+            put("phone",phone)
+            put("email", email)
+        }
+        val result = db.insert(USERTABLE, null, values)
+
+        if (result == -1L) {
+
+            Log.d("DB", "Error inserting data into the database")
+        } else {
+
+            Log.d("DB", "Data inserted successfully")
+        }
+    }
+
+    fun insertCharger1(
+        uuid: String,
+        owner: String,
+
+        stationName: String,
+        contact: Long,
+        location: String,
+        longitude: Double,
+        latitude: Double,
+        elevation: Double,
+        dateTime: String,
+
+        chargerCapacity1: String,
+        charger1: Long,
+        chargerMake1: String,
+        chargerType1: String,
+        chargerCost1: Long,
+
+        chargerCapacity2: String,
+        charger2: Long,
+        chargerMake2: String,
+        chargerType2: String,
+        chargerCost2: Long,
+
+        chargerCapacity3: String,
+        charger3: Long,
+        chargerMake3: String,
+        chargerType3: String,
+        chargerCost3: Long,
+
+        costOfElectrictyEerMonth: Int,
+        averageNoOfMicroBusPerDay: Int,
+        averageNoOfCarBusPerDay: Int,
+        anyChallengesOrIssuesDuringImplementaion: String,
+        photo1: ByteArray,
+        photo2: ByteArray
+    ) {
+        val db = this.writableDatabase
+//        val imageByteArray: ByteArray = bitmapToByteArray()
         val values = ContentValues().apply {
             put("uuid", uuid)
             put("owner", owner)
@@ -125,12 +161,15 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("chargerType3", chargerType3)
             put("chargerCost3", chargerCost3)
 
-            put("cost_of_electricty_per_month", costOfElectrictyEerMonth )
+            put("cost_of_electricty_per_month", costOfElectrictyEerMonth)
             put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
             put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
-            put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
+            put(
+                "any_challenges_or_issues_during_implementaion",
+                anyChallengesOrIssuesDuringImplementaion
+            )
 
-            put("image_data", imageByteArray)
+            put("photo1", photo1)
             put("photo2", photo2)
         }
         val result = db.insert(CHARGING1, null, values)
@@ -205,6 +244,22 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         return deleted
     }
 
+    fun getUserById(id: Int): UserData? {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $USERTABLE WHERE id = ?", arrayOf(id.toString()))
+        return if (cursor.moveToFirst()) {
+            val user = UserData(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                username = cursor.getString(cursor.getColumnIndexOrThrow("name")),
+                password = cursor.getString(cursor.getColumnIndexOrThrow("password"))
+            )
+            cursor.close()
+            user
+        } else {
+            cursor.close()
+            null
+        }
+    }
 
     fun getStationById(id: Int): ChargingStationData? {
         val db = readableDatabase
@@ -295,10 +350,32 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("average_no_of_car_bus_per_day", station.carBusPerDay)
             put("any_challenges_or_issues_during_implementaion", station.challenges)
 
+            put("photo1", station.photo1)
+            put("photo2", station.photo2)
+
         }
 
         val updated = db.update(CHARGING1, contentValues, "id = ?", arrayOf(station.id.toString()))
         db.close()
         return updated > 0
     }
+
+    fun validateUser(username: String, password: String): UserData? {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT * FROM $USERTABLE WHERE username = ? AND password = ?",
+            arrayOf(username, password)
+        )
+        var userData: UserData? = null
+        if (cursor.moveToFirst()) {
+            userData = UserData(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                username = cursor.getString(cursor.getColumnIndexOrThrow("username")),
+                password = cursor.getString(cursor.getColumnIndexOrThrow("password"))
+            )
+        }
+        cursor.close()
+        return userData
+    }
+
 }

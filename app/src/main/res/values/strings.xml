@@ -7,4 +7,11 @@
     <string name="title_activity_station_desc">StationDesc</string>
     <string name="title_activity_test">test</string>
     <string name="title_activity_gpsfetcher">GPSFetcher</string>
+    <string name="title_activity_detail_page">DetailPage</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_fullscreen_image">FullscreenImageActivity</string>
+    <string name="title_activity_login">login</string>
+    <string name="title_activity_user_info">UserInfo</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="title_activity_sign_up">SignUp</string>
 </resources>

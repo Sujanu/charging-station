@@ -38,5 +38,5 @@ data class ChargingStationData(
     val challenges : String,
 
     val photo1 : ByteArray,
-    val photo2 : ByteArray,
+    val photo2 : ByteArray
 )
