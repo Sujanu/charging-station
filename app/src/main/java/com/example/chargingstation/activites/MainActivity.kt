@@ -155,7 +155,6 @@ fun MainScreen(db: ChargingStation ) {
 
 /////////////////// **************** Show Data **************** ///////////////////
 
-/// No Preview ///
 @Composable
 fun AllStationsListScreen(db: ChargingStation) {
 
