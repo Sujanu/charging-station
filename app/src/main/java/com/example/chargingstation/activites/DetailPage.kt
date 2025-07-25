@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.utils.widget.MotionLabel
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.activites.ui.theme.ChargingStationTheme
+import com.example.chargingstation.model.ChargerData
 import com.example.chargingstation.model.ChargingStationData
 import java.io.File
 
@@ -154,15 +155,16 @@ fun DetailView(station: ChargingStationData?) {
                 }
 
                 // Charger Details Section
-                Section(title = "Charger Details") {
-                    ChargerDetailCard("Charger 1", station)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ChargerDetailCard("Charger 2", station)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ChargerDetailCard("Charger 3", station)
-                }
+//                Section(title = "Charger Details") {
+//                    ChargerDetailCard("Charger 1", station)
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    ChargerDetailCard("Charger 2", station)
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    ChargerDetailCard("Charger 3", station)
+//                }
 
                 // Operational Data Section
+
                 Section(title = "Operational Data") {
                     StationDetailText("Avg. Electricity Cost/Month", "₹${station.electricityCostPerMonth}")
                     StationDetailText("Avg. Cars/Buses per Day", station.carBusPerDay.toString())
@@ -271,34 +273,36 @@ fun StationDetailText(label: String, value: String, singleLine: Boolean = true) 
 }
 
 
-@Composable
-fun ChargerDetailCard(chargerId: String, station: ChargingStationData) {
-    val (chargerNo, make, type, capacity, cost) = when (chargerId) {
-        "Charger 1" -> listOf(station.charger1, station.chargerMake1, station.chargerType1, station.chargerCapacity1, station.chargerCost1)
-        "Charger 2" -> listOf(station.charger2, station.chargerMake2, station.chargerType2, station.chargerCapacity2, station.chargerCost2)
-        else -> listOf(station.charger3, station.chargerMake3, station.chargerType3, station.chargerCapacity3, station.chargerCost3)
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "$chargerId - #$chargerNo",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            StationDetailText("Make", make.toString())
-            StationDetailText("Type", type.toString())
-            StationDetailText("Capacity", capacity.toString())
-            StationDetailText("Cost", "$cost")
-        }
-    }
-}
+//@Composable
+//fun ChargerDetailCard(chargerId: String, station: ChargingStationData , station1: ChargerData) {
+//
+//
+//    val (chargerNo, make, type, capacity, cost) = when (chargerId) {
+//        "Charger 1" -> listOf(station.charger1, station.chargerMake1, station.chargerType1, station.chargerCapacity1, station.chargerCost1)
+//        "Charger 2" -> listOf(station.charger2, station.chargerMake2, station.chargerType2, station.chargerCapacity2, station.chargerCost2)
+//        else -> listOf(station.charger3, station.chargerMake3, station.chargerType3, station.chargerCapacity3, station.chargerCost3)
+//    }
+//
+//    Card(
+//        modifier = Modifier.fillMaxWidth(),
+//        elevation = CardDefaults.cardElevation(4.dp),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(
+//                text = "$chargerId - #$chargerNo",
+//                style = MaterialTheme.typography.titleMedium,
+//                fontWeight = FontWeight.Bold
+//            )
+//            Spacer(modifier = Modifier.height(12.dp))
+//            StationDetailText("Make", make.toString())
+//            StationDetailText("Type", type.toString())
+//            StationDetailText("Capacity", capacity.toString())
+//            StationDetailText("Cost", "$cost")
+//        }
+//    }
+//}
 
 @Composable
 fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {

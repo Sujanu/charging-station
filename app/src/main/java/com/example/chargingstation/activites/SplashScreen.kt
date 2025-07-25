@@ -38,7 +38,7 @@ class SplashScreen : ComponentActivity() {
         setContent {
             ChargingStationTheme {
                 SplashScreenContent {
-                startActivity(Intent(this@SplashScreen, LoginPage::class.java)) // Replace with LoginPage or MainActivity if needed
+                startActivity(Intent(this@SplashScreen, MainActivity::class.java)) // Replace with LoginPage or MainActivity if needed
                 finish()
             }
             }

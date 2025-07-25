@@ -4,18 +4,18 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.provider.ContactsContract.CommonDataKinds.Email
 import android.util.Log
-import com.example.chargingstation.activites.bitmapToByteArray
+import com.example.chargingstation.model.ChargerData
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.model.UserData
 
-class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME, null, 2) {
+class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME, null, 2) {
 
     companion object {
-        const val DATABSENAME = "chargingStation.db"
+        const val DATABASENAME = "chargingStation.db"
         const val CHARGING1 = "chargerStation1"
         const val USERTABLE = "userInfo"
+        const val CHARGER = "charger"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -31,21 +31,24 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     "latitude REAL ," +
                     "elevation REAL," +
                     "dateTime TEXT NOT NULL," +
-                    "chargerCapacity1 TEXT NOT NULL," +
-                    "charger1 TEXT NOT NULL," +
-                    "chargerType1 TEXT NOT NULL," +
-                    "chargerMake1 TEXT NOT NULL," +
-                    "chargerCost1 LONG NOT NULL," +
-                    "chargerCapacity2 TEXT NOT NULL," +
-                    "charger2 TEXT NOT NULL," +
-                    "chargerType2 TEXT NOT NULL," +
-                    "chargerMake2 TEXT NOT NULL," +
-                    "chargerCost2 LONG NOT NULL," +
-                    "chargerCapacity3 TEXT NOT NULL," +
-                    "charger3 TEXT NOT NULL," +
-                    "chargerType3 TEXT NOT NULL," +
-                    "chargerMake3 TEXT NOT NULL," +
-                    "chargerCost3 LONG NOT NULL," +
+
+//                    "chargerCapacity1 TEXT NOT NULL," +
+//                    "charger1 TEXT NOT NULL," +
+//                    "chargerType1 TEXT NOT NULL," +
+//                    "chargerMake1 TEXT NOT NULL," +
+//                    "chargerCost1 LONG NOT NULL," +
+//
+//                    "chargerCapacity2 TEXT NOT NULL," +
+//                    "charger2 TEXT NOT NULL," +
+//                    "chargerType2 TEXT NOT NULL," +
+//                    "chargerMake2 TEXT NOT NULL," +
+//                    "chargerCost2 LONG NOT NULL," +
+//                    "chargerCapacity3 TEXT NOT NULL," +
+//                    "charger3 TEXT NOT NULL," +
+//                    "chargerType3 TEXT NOT NULL," +
+//                    "chargerMake3 TEXT NOT NULL," +
+//                    "chargerCost3 LONG NOT NULL," +
+
                     "cost_of_electricty_per_month INTEGER NOT NULL," +
                     "average_no_of_micro_bus_per_day INTEGER NOT NULL," +
                     "average_no_of_car_bus_per_day INTEGER NOT NULL," +
@@ -58,10 +61,21 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             "CREATE TABLE $USERTABLE(" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "username TEXT NOT NULL," +
-                    "email TEXT NOT NULL,"+
-                    "phone LONG NOT NULL,"+
+                    "email TEXT NOT NULL," +
+                    "phone LONG NOT NULL," +
                     "password TEXT NOT NULL)"
         )
+
+        db?.execSQL(
+            "CREATE TABLE $CHARGER(" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "chargerCapacity TEXT NOT NULL," +
+                    "charger TEXT NOT NULL," +
+                    "chargerType TEXT NOT NULL," +
+                    "chargerMake TEXT NOT NULL," +
+                    "chargerCost LONG NOT NULL)"
+        )
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -72,14 +86,14 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         username: String,
         password: String,
         email: String,
-        phone : Long
+        phone: Long
 
     ) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put("username", username)
             put("password", password)
-            put("phone",phone)
+            put("phone", phone)
             put("email", email)
         }
         val result = db.insert(USERTABLE, null, values)
@@ -105,23 +119,23 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         elevation: Double,
         dateTime: String,
 
-        chargerCapacity1: String,
-        charger1: Long,
-        chargerMake1: String,
-        chargerType1: String,
-        chargerCost1: Long,
-
-        chargerCapacity2: String,
-        charger2: Long,
-        chargerMake2: String,
-        chargerType2: String,
-        chargerCost2: Long,
-
-        chargerCapacity3: String,
-        charger3: Long,
-        chargerMake3: String,
-        chargerType3: String,
-        chargerCost3: Long,
+//        chargerCapacity1: String,
+//        charger1: Long,
+//        chargerMake1: String,
+//        chargerType1: String,
+//        chargerCost1: Long,
+//
+//        chargerCapacity2: String,
+//        charger2: Long,
+//        chargerMake2: String,
+//        chargerType2: String,
+//        chargerCost2: Long,
+//
+//        chargerCapacity3: String,
+//        charger3: Long,
+//        chargerMake3: String,
+//        chargerType3: String,
+//        chargerCost3: Long,
 
         costOfElectrictyEerMonth: Int,
         averageNoOfMicroBusPerDay: Int,
@@ -143,23 +157,23 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("elevation", elevation)
             put("dateTime", dateTime)
 
-            put("chargerCapacity1", chargerCapacity1)
-            put("chargerMake1", chargerMake1)
-            put("charger1", charger1.toString()) // stores as Text
-            put("chargerType1", chargerType1)
-            put("chargerCost1", chargerCost1)
-
-            put("chargerCapacity2", chargerCapacity2)
-            put("chargerMake2", chargerMake2)
-            put("charger2", charger2.toString()) // stores as Text
-            put("chargerType2", chargerType2)
-            put("chargerCost2", chargerCost2)
-
-            put("chargerCapacity3", chargerCapacity3)
-            put("chargerMake3", chargerMake3)
-            put("charger3", charger3.toString()) // stores as Text
-            put("chargerType3", chargerType3)
-            put("chargerCost3", chargerCost3)
+//            put("chargerCapacity1", chargerCapacity1)
+//            put("chargerMake1", chargerMake1)
+//            put("charger1", charger1.toString()) // stores as Text
+//            put("chargerType1", chargerType1)
+//            put("chargerCost1", chargerCost1)
+//
+//            put("chargerCapacity2", chargerCapacity2)
+//            put("chargerMake2", chargerMake2)
+//            put("charger2", charger2.toString()) // stores as Text
+//            put("chargerType2", chargerType2)
+//            put("chargerCost2", chargerCost2)
+//
+//            put("chargerCapacity3", chargerCapacity3)
+//            put("chargerMake3", chargerMake3)
+//            put("charger3", charger3.toString()) // stores as Text
+//            put("chargerType3", chargerType3)
+//            put("chargerCost3", chargerCost3)
 
             put("cost_of_electricty_per_month", costOfElectrictyEerMonth)
             put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
@@ -202,23 +216,23 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                     elevation = cursor.getDouble(cursor.getColumnIndexOrThrow("elevation")),
                     dateTime = cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
 
-                    charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
-                    chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
-                    chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
-                    chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
-                    chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
-
-                    charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
-                    chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
-                    chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
-                    chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
-                    chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
-
-                    charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
-                    chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
-                    chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
-                    chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
-                    chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
+//                    charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
+//                    chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
+//                    chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
+//                    chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
+//                    chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
+//
+//                    charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
+//                    chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
+//                    chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
+//                    chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
+//                    chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
+//
+//                    charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
+//                    chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
+//                    chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
+//                    chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
+//                    chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
 
                     electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                     microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
@@ -244,17 +258,22 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         return deleted
     }
 
-    fun getUserById(id: Int): UserData? {
+    fun getChargerById(id: Int): ChargerData? {
+
         val db = readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $USERTABLE WHERE id = ?", arrayOf(id.toString()))
+        val cursor = db.rawQuery("SELECT * FROM $CHARGER WHERE id = ?", arrayOf(id.toString()))
+
         return if (cursor.moveToFirst()) {
-            val user = UserData(
+            val station = ChargerData(
                 id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
-                username = cursor.getString(cursor.getColumnIndexOrThrow("name")),
-                password = cursor.getString(cursor.getColumnIndexOrThrow("password"))
+                charger = cursor.getInt(cursor.getColumnIndexOrThrow("charger")),
+                chargerType = cursor.getString(cursor.getColumnIndexOrThrow("chargerType")),
+                chargerMake = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake")),
+                chargerCost = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost")),
+                chargerCapacity = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity")),
             )
             cursor.close()
-            user
+            station
         } else {
             cursor.close()
             null
@@ -279,23 +298,23 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
                 elevation = cursor.getDouble(cursor.getColumnIndexOrThrow("elevation")),
                 dateTime = cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
 
-                charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
-                chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
-                chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
-                chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
-                chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
-
-                charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
-                chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
-                chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
-                chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
-                chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
-
-                charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
-                chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
-                chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
-                chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
-                chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
+//                charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
+//                chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
+//                chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
+//                chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
+//                chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
+//
+//                charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
+//                chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
+//                chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
+//                chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
+//                chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
+//
+//                charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
+//                chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
+//                chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
+//                chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
+//                chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
 
                 electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                 microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
@@ -327,23 +346,23 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
             put("elevation", station.elevation)
             put("dateTime", station.dateTime)
 
-            put("chargerCapacity1", station.chargerCapacity1)
-            put("chargerMake1", station.chargerMake1)
-            put("chargerType1", station.chargerType1)
-            put("charger1", station.charger1)
-            put("chargerCost1", station.chargerCost1)
-
-            put("chargerCapacity2", station.chargerCapacity2)
-            put("chargerMake2", station.chargerMake2)
-            put("chargerType2", station.chargerType2)
-            put("charger2", station.charger2)
-            put("chargerCost2", station.chargerCost2)
-
-            put("chargerCapacity3", station.chargerCapacity3)
-            put("chargerMake3", station.chargerMake3)
-            put("chargerType3", station.chargerType3)
-            put("charger3", station.charger3)
-            put("chargerCost3", station.chargerCost3)
+//            put("chargerCapacity1", station.chargerCapacity1)
+//            put("chargerMake1", station.chargerMake1)
+//            put("chargerType1", station.chargerType1)
+//            put("charger1", station.charger1)
+//            put("chargerCost1", station.chargerCost1)
+//
+//            put("chargerCapacity2", station.chargerCapacity2)
+//            put("chargerMake2", station.chargerMake2)
+//            put("chargerType2", station.chargerType2)
+//            put("charger2", station.charger2)
+//            put("chargerCost2", station.chargerCost2)
+//
+//            put("chargerCapacity3", station.chargerCapacity3)
+//            put("chargerMake3", station.chargerMake3)
+//            put("chargerType3", station.chargerType3)
+//            put("charger3", station.charger3)
+//            put("chargerCost3", station.chargerCost3)
 
             put("cost_of_electricty_per_month", station.electricityCostPerMonth)
             put("average_no_of_micro_bus_per_day", station.microBusPerDay)
@@ -378,4 +397,31 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABSENAME,
         return userData
     }
 
+    fun updateCharger(station: ChargerData): Boolean {
+        val db = this.writableDatabase
+        val contentValues = ContentValues().apply {
+
+            put("chargerCapacity", station.chargerCapacity)
+            put("chargerMake", station.chargerMake)
+            put("chargerType", station.chargerType)
+            put("charger", station.charger)
+            put("chargerCost", station.chargerCost)
+        }
+        val updated = db.update(CHARGER, contentValues, "id = ?", arrayOf(station.id.toString()))
+        db.close()
+        return updated > 0
+    }
+
+    fun addCharger(chargerData: ChargerData): Long {
+        val db = writableDatabase
+        val contentValues = ContentValues().apply {
+            put("charger", chargerData.charger)
+            put("chargerCapacity", chargerData.chargerCapacity)
+            put("chargerMake", chargerData.chargerMake)
+            put("chargerType", chargerData.chargerType)
+            put("chargerCost", chargerData.chargerCost)
+        }
+
+        return db.insert(CHARGER, null, contentValues)
+    }
 }

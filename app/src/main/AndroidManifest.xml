@@ -24,6 +24,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChargingStation">
         <activity
+            android:name=".activites.Charger"
+            android:exported="false"
+            android:label="@string/title_activity_charger"
+            android:theme="@style/Theme.ChargingStation" />
+        <activity
             android:name=".activites.SignUp"
             android:exported="false"
             android:label="@string/title_activity_sign_up"
@@ -68,8 +73,7 @@
             android:name=".activites.MainActivity"
             android:exported="false"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ChargingStation">
-        </activity>
+            android:theme="@style/Theme.ChargingStation"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

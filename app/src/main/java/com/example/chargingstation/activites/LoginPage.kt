@@ -1,17 +1,15 @@
 package com.example.chargingstation.activites
 
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.icu.text.UnicodeSet
 import android.os.Bundle
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,24 +39,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.chargingstation.ChargingStation
-import com.example.chargingstation.activites.ui.theme.ChargingStationTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.startActivity
-import com.example.chargingstation.R
-import com.example.chargingstation.model.UserData
 
+import com.example.chargingstation.R
+import com.example.chargingstation.ChargingStation
+import com.example.chargingstation.activites.ui.theme.ChargingStationTheme
 
 class LoginPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,13 +93,8 @@ fun LoginField(db: ChargingStation?) {
 
     val context = LocalContext.current
 
-    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text("Charging Station") },
-//                modifier = Modifier.padding(top = 20.dp)            )
-//        }
-    ) { innerPadding ->
+    Scaffold{
+        innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
@@ -265,6 +254,28 @@ fun LoginField(db: ChargingStation?) {
                         {
                             Text(
                                 "Don't have account?",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    textDecoration = TextDecoration.Underline
+                                ),
+                                fontSize = 20.sp
+                            )
+                        }
+
+                        /////////////////// **************** Button *************** ///////////////////
+
+                        Button(
+                            onClick = {
+                                context.startActivity(Intent(context, Charger::class.java))
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent, // Matches background
+                                contentColor = Color.Black// Text color
+                            ),
+                            elevation = null,
+                        )
+                        {
+                            Text(
+                                "Charger",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     textDecoration = TextDecoration.Underline
                                 ),
