@@ -113,6 +113,7 @@ fun MainScreen(db: ChargingStation) {
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth(),
                 containerColor = Color.White.copy(alpha = 0.9f), // Optional semi-transparent bg
+
                 actions = {
                     IconButton(
                         onClick = {
@@ -157,7 +158,6 @@ fun AllStationsListScreen(db: ChargingStation) {
             )
         } else {
             stations.forEach { station ->
-
                 Card(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -172,8 +172,10 @@ fun AllStationsListScreen(db: ChargingStation) {
                                 }
                             )
                         },
-
-                    elevation = CardDefaults.cardElevation(4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent // Make card background transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
 
                     ) {
                     Row(

@@ -86,7 +86,6 @@ class Station1 : ComponentActivity() {
 
         } else{ null}
 
-
         val allStations = dbHelper.getAllChargingStations()
         allStations.forEach {
             Log.d("StationData", it.toString())
@@ -108,6 +107,7 @@ class Station1 : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) {
+
     val temp = station?.uuid ?: uidCreator()
 
     var stationName by remember { mutableStateOf(station?.stationName ?: "") }
@@ -195,8 +195,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent // Make card background transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         "Station Information", modifier = Modifier.padding(bottom = 8.dp),
@@ -261,8 +263,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent // Make card background transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
 
                     Box(
@@ -348,7 +352,11 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                 Button(
                     onClick = {
-                        context.startActivity(Intent(context, Charger::class.java))
+
+                        val intent = Intent(context, Charger::class.java)
+                        intent.putExtra("uuid", temp) // `temp` holds the UUID
+                        context.startActivity(intent)
+
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent, // Matches background
@@ -372,8 +380,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent // Make card background transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Station Description",
@@ -446,8 +456,10 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Transparent // Make card background transparent
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Take Photo",
@@ -484,22 +496,11 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                 location.isNotEmpty() && longitude.isNotEmpty() &&
                                 costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
 
-//                        && charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty()
-//                        && chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() &&  chargerCapacity2.isNotEmpty()
-//                        && chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty()
-//                        && charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty()
-//                        && chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && charger2.isNotEmpty()
                             ) {
                                 val contactInt = contact.toLong()
                                 val longitudeDouble = longitude.toDouble()
                                 val latitudeDouble = latitude.toDouble()
                                 val elevationDouble = elevation.toDouble()
-
-//                            val chargerCostInt1 = chargerCost1.toLong()
-//
-//                            val chargerCostInt2 = chargerCost2.toLong()
-//
-//                            val chargerCostInt3 = chargerCost3.toLong()
 
                                 val uuid = temp
 
@@ -524,25 +525,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                             challenges = anyChallenge,
                                             photo1 = photo1!!,
                                             photo2 = photo2!!,
-
-//                                        chargerCapacity1 = chargerCapacity1,
-//                                        chargerMake1 = chargerMake1,
-//                                        chargerType1 = chargerType1,
-//                                        chargerCost1 = chargerCostInt1,
-//                                        charger1 = charger1,
-//
-//                                        charger2 = charger2,
-//                                        chargerCapacity2 = chargerCapacity2,
-//                                        chargerMake2 = chargerMake2,
-//                                        chargerType2 = chargerType2,
-//                                        chargerCost2 = chargerCostInt2,
-//
-//                                        charger3 = charger3,
-//                                        chargerCapacity3 = chargerCapacity3,
-//                                        chargerMake3 = chargerMake3,
-//                                        chargerType3 = chargerType3,
-//                                        chargerCost3 = chargerCostInt3,
-
                                         )
                                     }
                                 }
@@ -568,25 +550,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                             photo1 = newStation.photo1,
                                             photo2 = newStation.photo2
                                         )
-
-//                                        charger1 = newStation.charger1.toLong(),
-//                                        chargerMake1 = newStation.chargerMake1,
-//                                        chargerType1 = newStation.chargerType1,
-//                                        chargerCost1 = newStation.chargerCost1,
-//                                        chargerCapacity1 = newStation.chargerCapacity1,
-//
-//                                        charger2 = newStation.charger2.toLong(),
-//                                        chargerMake2 = newStation.chargerMake2,
-//                                        chargerType2 = newStation.chargerType2,
-//                                        chargerCost2 = newStation.chargerCost2,
-//                                        chargerCapacity2 = newStation.chargerCapacity2,
-//
-//                                        charger3 = newStation.charger3.toLong(),
-//                                        chargerMake3 = newStation.chargerMake3,
-//                                        chargerType3 = newStation.chargerType3,
-//                                        chargerCost3 = newStation.chargerCost3,
-//                                        chargerCapacity3 = newStation.chargerCapacity3,)
-
                                     }
                                     Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT)
                                         .show()

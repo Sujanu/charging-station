@@ -32,23 +32,6 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
                     "elevation REAL," +
                     "dateTime TEXT NOT NULL," +
 
-//                    "chargerCapacity1 TEXT NOT NULL," +
-//                    "charger1 TEXT NOT NULL," +
-//                    "chargerType1 TEXT NOT NULL," +
-//                    "chargerMake1 TEXT NOT NULL," +
-//                    "chargerCost1 LONG NOT NULL," +
-//
-//                    "chargerCapacity2 TEXT NOT NULL," +
-//                    "charger2 TEXT NOT NULL," +
-//                    "chargerType2 TEXT NOT NULL," +
-//                    "chargerMake2 TEXT NOT NULL," +
-//                    "chargerCost2 LONG NOT NULL," +
-//                    "chargerCapacity3 TEXT NOT NULL," +
-//                    "charger3 TEXT NOT NULL," +
-//                    "chargerType3 TEXT NOT NULL," +
-//                    "chargerMake3 TEXT NOT NULL," +
-//                    "chargerCost3 LONG NOT NULL," +
-
                     "cost_of_electricty_per_month INTEGER NOT NULL," +
                     "average_no_of_micro_bus_per_day INTEGER NOT NULL," +
                     "average_no_of_car_bus_per_day INTEGER NOT NULL," +
@@ -69,6 +52,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         db?.execSQL(
             "CREATE TABLE $CHARGER(" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "uuid TEXT NOT NULL," +
                     "chargerCapacity TEXT NOT NULL," +
                     "charger TEXT NOT NULL," +
                     "chargerType TEXT NOT NULL," +
@@ -107,6 +91,22 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         }
     }
 
+    fun addCharger(chargerData: ChargerData): Long {
+        val db = writableDatabase
+        val contentValues = ContentValues().apply {
+
+            put("charger", chargerData.charger)
+            put("uuid", chargerData.uuid )
+            put("chargerCapacity", chargerData.chargerCapacity)
+            put("chargerMake", chargerData.chargerMake)
+            put("chargerType", chargerData.chargerType)
+            put("chargerCost", chargerData.chargerCost)
+        }
+
+        return db.insert(CHARGER, null, contentValues)
+    }
+
+
     fun insertCharger1(
         uuid: String,
         owner: String,
@@ -119,37 +119,20 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         elevation: Double,
         dateTime: String,
 
-//        chargerCapacity1: String,
-//        charger1: Long,
-//        chargerMake1: String,
-//        chargerType1: String,
-//        chargerCost1: Long,
-//
-//        chargerCapacity2: String,
-//        charger2: Long,
-//        chargerMake2: String,
-//        chargerType2: String,
-//        chargerCost2: Long,
-//
-//        chargerCapacity3: String,
-//        charger3: Long,
-//        chargerMake3: String,
-//        chargerType3: String,
-//        chargerCost3: Long,
-
         costOfElectrictyEerMonth: Int,
         averageNoOfMicroBusPerDay: Int,
         averageNoOfCarBusPerDay: Int,
         anyChallengesOrIssuesDuringImplementaion: String,
         photo1: ByteArray,
         photo2: ByteArray
-    ) {
+    )
+     {
         val db = this.writableDatabase
 //        val imageByteArray: ByteArray = bitmapToByteArray()
         val values = ContentValues().apply {
             put("uuid", uuid)
-            put("owner", owner)
-            put("station_name", stationName)
+            put("owner",owner)
+            put("station_name",stationName)
             put("contact", contact)
             put("location", location)
             put("longitude", longitude)
@@ -157,36 +140,15 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
             put("elevation", elevation)
             put("dateTime", dateTime)
 
-//            put("chargerCapacity1", chargerCapacity1)
-//            put("chargerMake1", chargerMake1)
-//            put("charger1", charger1.toString()) // stores as Text
-//            put("chargerType1", chargerType1)
-//            put("chargerCost1", chargerCost1)
-//
-//            put("chargerCapacity2", chargerCapacity2)
-//            put("chargerMake2", chargerMake2)
-//            put("charger2", charger2.toString()) // stores as Text
-//            put("chargerType2", chargerType2)
-//            put("chargerCost2", chargerCost2)
-//
-//            put("chargerCapacity3", chargerCapacity3)
-//            put("chargerMake3", chargerMake3)
-//            put("charger3", charger3.toString()) // stores as Text
-//            put("chargerType3", chargerType3)
-//            put("chargerCost3", chargerCost3)
-
             put("cost_of_electricty_per_month", costOfElectrictyEerMonth)
             put("average_no_of_micro_bus_per_day", averageNoOfMicroBusPerDay)
             put("average_no_of_car_bus_per_day", averageNoOfCarBusPerDay)
-            put(
-                "any_challenges_or_issues_during_implementaion",
-                anyChallengesOrIssuesDuringImplementaion
-            )
+            put("any_challenges_or_issues_during_implementaion", anyChallengesOrIssuesDuringImplementaion)
 
             put("photo1", photo1)
             put("photo2", photo2)
         }
-        val result = db.insert(CHARGING1, null, values)
+         val result = db.insert(CHARGING1, null, values)
 
         if (result == -1L) {
 
@@ -215,24 +177,6 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
                     latitude = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude")),
                     elevation = cursor.getDouble(cursor.getColumnIndexOrThrow("elevation")),
                     dateTime = cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
-
-//                    charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
-//                    chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
-//                    chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
-//                    chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
-//                    chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
-//
-//                    charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
-//                    chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
-//                    chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
-//                    chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
-//                    chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
-//
-//                    charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
-//                    chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
-//                    chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
-//                    chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
-//                    chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
 
                     electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                     microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
@@ -266,6 +210,7 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         return if (cursor.moveToFirst()) {
             val station = ChargerData(
                 id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                uuid = cursor.getString(cursor.getColumnIndexOrThrow("uuid")),
                 charger = cursor.getInt(cursor.getColumnIndexOrThrow("charger")),
                 chargerType = cursor.getString(cursor.getColumnIndexOrThrow("chargerType")),
                 chargerMake = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake")),
@@ -298,24 +243,6 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
                 elevation = cursor.getDouble(cursor.getColumnIndexOrThrow("elevation")),
                 dateTime = cursor.getString(cursor.getColumnIndexOrThrow("dateTime")),
 
-//                charger1 = cursor.getString(cursor.getColumnIndexOrThrow("charger1")),
-//                chargerType1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType1")),
-//                chargerMake1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake1")),
-//                chargerCost1 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost1")),
-//                chargerCapacity1 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity1")),
-//
-//                charger2 = cursor.getString(cursor.getColumnIndexOrThrow("charger2")),
-//                chargerType2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType2")),
-//                chargerMake2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake2")),
-//                chargerCost2 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost2")),
-//                chargerCapacity2 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity2")),
-//
-//                charger3 = cursor.getString(cursor.getColumnIndexOrThrow("charger3")),
-//                chargerType3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerType3")),
-//                chargerMake3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake3")),
-//                chargerCost3 = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost3")),
-//                chargerCapacity3 = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity3")),
-
                 electricityCostPerMonth = cursor.getInt(cursor.getColumnIndexOrThrow("cost_of_electricty_per_month")),
                 microBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_micro_bus_per_day")),
                 carBusPerDay = cursor.getInt(cursor.getColumnIndexOrThrow("average_no_of_car_bus_per_day")),
@@ -345,24 +272,6 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
             put("latitude", station.latitude)
             put("elevation", station.elevation)
             put("dateTime", station.dateTime)
-
-//            put("chargerCapacity1", station.chargerCapacity1)
-//            put("chargerMake1", station.chargerMake1)
-//            put("chargerType1", station.chargerType1)
-//            put("charger1", station.charger1)
-//            put("chargerCost1", station.chargerCost1)
-//
-//            put("chargerCapacity2", station.chargerCapacity2)
-//            put("chargerMake2", station.chargerMake2)
-//            put("chargerType2", station.chargerType2)
-//            put("charger2", station.charger2)
-//            put("chargerCost2", station.chargerCost2)
-//
-//            put("chargerCapacity3", station.chargerCapacity3)
-//            put("chargerMake3", station.chargerMake3)
-//            put("chargerType3", station.chargerType3)
-//            put("charger3", station.charger3)
-//            put("chargerCost3", station.chargerCost3)
 
             put("cost_of_electricty_per_month", station.electricityCostPerMonth)
             put("average_no_of_micro_bus_per_day", station.microBusPerDay)
@@ -410,18 +319,5 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         val updated = db.update(CHARGER, contentValues, "id = ?", arrayOf(station.id.toString()))
         db.close()
         return updated > 0
-    }
-
-    fun addCharger(chargerData: ChargerData): Long {
-        val db = writableDatabase
-        val contentValues = ContentValues().apply {
-            put("charger", chargerData.charger)
-            put("chargerCapacity", chargerData.chargerCapacity)
-            put("chargerMake", chargerData.chargerMake)
-            put("chargerType", chargerData.chargerType)
-            put("chargerCost", chargerData.chargerCost)
-        }
-
-        return db.insert(CHARGER, null, contentValues)
     }
 }

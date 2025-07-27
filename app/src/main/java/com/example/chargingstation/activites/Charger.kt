@@ -52,13 +52,22 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import com.example.chargingstation.R
 
 class Charger : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val uuid = intent.getStringExtra("uuid")
+
+        if (uuid != null) {
+            Log.d("ChargerUUID", "Received UUID: $uuid")
+            // You can now use this UUID to insert/update charger entries linked to the charging station
+        } else {
+            Toast.makeText(this, "UUID not found", Toast.LENGTH_SHORT).show()
+            finish() // Optional: Close if no UUID
+        }
 
         val dbHelper = ChargingStation(this)
         val stationId = intent.getIntExtra("station_id", -1)
@@ -79,7 +88,7 @@ class Charger : ComponentActivity() {
         setContent {
             ChargingStationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    ChargerScreen(db = dbHelper, station = station)
+                    ChargerScreen(db = dbHelper, station = station,  uuid = uuid ?: "")
                 }
             }
         }
@@ -89,7 +98,7 @@ class Charger : ComponentActivity() {
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
+fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null, uuid: String) {
 
     var charger by remember { mutableStateOf("") }
     var chargerMake by remember { mutableStateOf(station?.chargerMake ?: "") }
@@ -102,6 +111,7 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
     val chargerTypeFocus = remember { FocusRequester() }
     val chargerCostFocus = remember { FocusRequester() }
     val chargerCapacityFocus = remember { FocusRequester() }
+
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -223,7 +233,8 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
                             chargerCapacity = chargerCapacity.toString(),
                             chargerMake = chargerMake,
                             chargerType = chargerType,
-                            chargerCost = chargerCost.toLong()
+                            chargerCost = chargerCost.toLong(),
+                            uuid = uuid // <-- assign the UUID
                         )
 
                         ///////////////////////////  DBMS ///////////////////////////
@@ -275,6 +286,7 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
                     fontSize = 20.sp
                 )
             }
+
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },

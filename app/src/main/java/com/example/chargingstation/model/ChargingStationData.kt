@@ -21,6 +21,7 @@ data class ChargingStationData(
 
     val photo1 : ByteArray,
     val photo2 : ByteArray
+)
 
 //    val charger1 : String,
 //    val chargerMake1 : String,
@@ -39,5 +40,3 @@ data class ChargingStationData(
 //    val chargerType3 : String,
 //    val chargerCapacity3 : String,
 //    val chargerCost3 : Long,
-
-)
