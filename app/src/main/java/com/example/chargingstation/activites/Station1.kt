@@ -477,7 +477,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     )
                 }
 
-
                 ///////////////////////////////////// Station Description /////////////////////////////////////
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -714,7 +713,6 @@ fun CaptureImageAsBitmapScreen(
     }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? { // Return nullable Bitmap?
@@ -767,3 +765,5 @@ private fun PhotoDisplay(label: String, byteArray: ByteArray?, onDelete: () -> U
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
