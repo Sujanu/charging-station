@@ -1,5 +1,6 @@
 package com.example.chargingstation.activites
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,7 +8,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,10 +47,14 @@ import androidx.compose.ui.unit.dp
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.activites.ui.theme.ChargingStationTheme
 import com.example.chargingstation.model.ChargerData
-import com.example.chargingstation.model.ChargingStationData
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.sp
+import com.example.chargingstation.R
 
 class Charger : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +86,7 @@ class Charger : ComponentActivity() {
     }
 }
 
+@SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
@@ -96,6 +103,8 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
     val chargerCostFocus = remember { FocusRequester() }
     val chargerCapacityFocus = remember { FocusRequester() }
 
+    var showDialog by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
 
     Scaffold(
@@ -103,20 +112,29 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
             TopAppBar(
                 title = { Text("Charging Station Info") },
                 actions = {
+
                     IconButton(onClick = {
                         context.startActivity(Intent(context, MainActivity::class.java))
-                    }
-                    ) {
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Home,
                             contentDescription = "Home"
                         )
                     }
+
                 }
             )
         }
     )
     { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.charger),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -191,13 +209,13 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
 
             Button(
                 onClick = {
-                    if(
+                    if (
                         charger.isNotEmpty() &&
                         chargerCapacity.isNotEmpty() &&
                         chargerMake.isNotEmpty() &&
                         chargerType.isNotEmpty() &&
                         chargerCost.isNotEmpty()
-                    ){
+                    ) {
 
                         val chargerData = ChargerData(
                             id = station?.id ?: 0,
@@ -207,41 +225,93 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null) {
                             chargerType = chargerType,
                             chargerCost = chargerCost.toLong()
                         )
-// Save to DB
+
+                        ///////////////////////////  DBMS ///////////////////////////
+
                         if (station == null) {
                             // Add new charger
-                            val id = db?.addCharger(chargerData)?: -1L
+                            val id = db?.addCharger(chargerData) ?: -1L
                             if (id != -1L) {
-                                Toast.makeText(context, "Charger Added Successfully!", Toast.LENGTH_SHORT).show()
-                                charger=""
-                                chargerCapacity=""
-                                chargerType=""
-                                chargerMake=""
-                                chargerCost=""
+                                showDialog = true
+                                Toast.makeText(
+                                    context,
+                                    "Charger Added Successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
                             } else {
-                                Toast.makeText(context, "Failed to Add Charger", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Failed to Add Charger", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         } else {
                             // Update existing charger
                             chargerData.id = station.id
                             val success = db?.updateCharger(chargerData) ?: false
                             if (success) {
-                                Toast.makeText(context, "Charger Updated Successfully!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Charger Updated Successfully!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
-                                Toast.makeText(context, "Failed to Update Charger", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Failed to Update Charger",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, // Matches background
+                    contentColor = Color.Black// Text color
+                )
             ) {
-                Text("Save")
-            } /////////////////////////// BUTTON ///////////////////////////
+                Text(
+                    "Save",
+                    fontSize = 20.sp
+                )
+            }
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Add Another Charger?") },
+                    text = { Text("Do you want to add another charger?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            // Clear fields
+                            charger = ""
+                            chargerCapacity = ""
+                            chargerType = ""
+                            chargerMake = ""
+                            chargerCost = ""
+                            showDialog = false
+                            Toast.makeText(context, "Ready for next entry!", Toast.LENGTH_SHORT)
+                                .show()
+                        }) {
+                            Text("Yes")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showDialog = false
+                            // Go back to main/home
+                            context.startActivity(Intent(context, Station1::class.java))
+                        }) {
+                            Text("No")
+                        }
+                    }
+                )
+            }
+
+            /////////////////////////// BUTTON END ///////////////////////////
 
 
-        } /////////////////////////// COLUMN ///////////////////////////
+        } ///////////////////////////// COLUMN END /////////////////////////////
+    }
     }
 }
 

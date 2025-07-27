@@ -310,3 +310,200 @@ class UserInfo : ComponentActivity() {
 //        }
 //    }
 //}
+
+
+
+//            ///////////////////////////////////////  Charger ///////////////////////////////////////
+
+//    var charger1 by remember { mutableStateOf(station?.charger1 ?: "") }
+//    var chargerMake1 by remember { mutableStateOf(station?.chargerMake1 ?: "") }
+//    var chargerType1 by remember { mutableStateOf(station?.chargerType1 ?: "") }
+//    var chargerCost1 by remember { mutableStateOf(station?.chargerCost1 ?.toString() ?: "") }
+//    var chargerCapacity1 by remember { mutableStateOf(station?.chargerCapacity1 ?: "") }
+//
+//    var charger2 by remember { mutableStateOf(station?.charger2 ?: "") }
+//    var chargerMake2 by remember { mutableStateOf(station?.chargerMake2 ?: "") }
+//    var chargerType2 by remember { mutableStateOf(station?.chargerType2 ?: "") }
+//    var chargerCost2 by remember { mutableStateOf(station?.chargerCost2?.toString() ?: "") }
+//    var chargerCapacity2 by remember { mutableStateOf(station?.chargerCapacity2 ?: "") }
+//
+//    var charger3 by remember { mutableStateOf(station?.charger3 ?: "") }
+//    var chargerMake3 by remember { mutableStateOf(station?.chargerMake3 ?: "") }
+//    var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
+//    var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
+//    var chargerCapacity3 by remember { mutableStateOf(station?.chargerCapacity3 ?: "") }
+
+
+///////////////////////////////////// 1 /////////////////////////////////////
+
+//            Text(text = ("Charger 1"))
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            OutlinedTextField(
+//                value = charger1,
+//                onValueChange = { charger1 = it },
+//                label = { Text("Charger No ") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCapacity1Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(charger1Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCapacity1,
+//                onValueChange = { chargerCapacity1 = it },
+//                label = { Text("Charger Capacity ") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerMake1Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity1Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerMake1,
+//                onValueChange = { chargerMake1 = it },
+//                label = { Text("Charger Made") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerType1Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake1Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerType1,
+//                onValueChange = { chargerType1 = it },
+//                label = { Text("Charger Type") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCost1Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType1Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCost1,
+//                onValueChange = { chargerCost1 = it },
+//                label = { Text("Charger Cost") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { charger2Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost1Focus)
+//            )
+//
+//            ///////////////////////////////////// 1 /////////////////////////////////////
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            ///////////////////////////////////// 2 /////////////////////////////////////
+//
+//            Text(text = ("Charger 2"))
+//
+//            OutlinedTextField(
+//                value = charger2,
+//                onValueChange = { charger2 = it },
+//                label = { Text("Charger No 2") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCapacity2Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(charger2Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCapacity2,
+//                onValueChange = { chargerCapacity2 = it },
+//                label = { Text("Charger Capacity 2") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerMake2Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity2Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerMake2,
+//                onValueChange = { chargerMake2 = it },
+//                label = { Text("Charger Made 2") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerType2Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake2Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerType2,
+//                onValueChange = { chargerType2 = it },
+//                label = { Text("Charger Type 2") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCost2Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType2Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCost2,
+//                onValueChange = { chargerCost2 = it },
+//                label = { Text("Charger Cost 2") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { charger3Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost2Focus)
+//            )
+//
+//            ///////////////////////////////////// 2 /////////////////////////////////////
+//
+//            Spacer(modifier = Modifier.height(8.dp))
+//
+//            ///////////////////////////////////// 3 /////////////////////////////////////
+//
+//            Text(text = ("Charger 3"))
+//
+//            OutlinedTextField(
+//                value = charger3,
+//                onValueChange = { charger3 = it },
+//                label = { Text("Charger No 3") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCapacity3Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(charger3Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCapacity3,
+//                onValueChange = { chargerCapacity3 = it },
+//                label = { Text("Charger Capacity 3") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerMake3Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity3Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerMake3,
+//                onValueChange = { chargerMake3 = it },
+//                label = { Text("Charger Made 3") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerType3Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake3Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerType3,
+//                onValueChange = { chargerType3 = it },
+//                label = { Text("Charger Type 3") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { chargerCost3Focus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType3Focus)
+//            )
+//
+//            OutlinedTextField(
+//                value = chargerCost3,
+//                onValueChange = { chargerCost3 = it },
+//                label = { Text("Charger Cost 3") },
+//                singleLine = true,
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+//                keyboardActions = KeyboardActions(onNext = { electricityCostFocus.requestFocus() }),
+//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost3Focus)
+//            )
+//
+//            ///////////////////////////////////////  3 ///////////////////////////////////////

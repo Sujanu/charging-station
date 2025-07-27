@@ -30,9 +30,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -49,13 +52,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.example.chargingstation.ChargingStation
+import com.example.chargingstation.R
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
@@ -111,24 +119,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var dateTime by remember { mutableStateOf(station?.dateTime ?: "") }
     var latitude by remember { mutableStateOf(station?.latitude?.toString() ?: "") }
 
-//    var charger1 by remember { mutableStateOf(station?.charger1 ?: "") }
-//    var chargerMake1 by remember { mutableStateOf(station?.chargerMake1 ?: "") }
-//    var chargerType1 by remember { mutableStateOf(station?.chargerType1 ?: "") }
-//    var chargerCost1 by remember { mutableStateOf(station?.chargerCost1 ?.toString() ?: "") }
-//    var chargerCapacity1 by remember { mutableStateOf(station?.chargerCapacity1 ?: "") }
-//
-//    var charger2 by remember { mutableStateOf(station?.charger2 ?: "") }
-//    var chargerMake2 by remember { mutableStateOf(station?.chargerMake2 ?: "") }
-//    var chargerType2 by remember { mutableStateOf(station?.chargerType2 ?: "") }
-//    var chargerCost2 by remember { mutableStateOf(station?.chargerCost2?.toString() ?: "") }
-//    var chargerCapacity2 by remember { mutableStateOf(station?.chargerCapacity2 ?: "") }
-//
-//    var charger3 by remember { mutableStateOf(station?.charger3 ?: "") }
-//    var chargerMake3 by remember { mutableStateOf(station?.chargerMake3 ?: "") }
-//    var chargerType3 by remember { mutableStateOf(station?.chargerType3 ?: "") }
-//    var chargerCost3 by remember { mutableStateOf(station?.chargerCost3?.toString() ?: "") }
-//    var chargerCapacity3 by remember { mutableStateOf(station?.chargerCapacity3 ?: "") }
-
     var costOfElec by remember {  mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
 
     var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
@@ -182,402 +172,328 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     )
 
     { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        )
-        {
-            ///////////////////////////////////// Station Information /////////////////////////////////////
-
-            Text("Station Information", modifier = Modifier.padding(bottom = 8.dp))
-
-            OutlinedTextField(
-                value = stationName,
-                onValueChange = { stationName = it },
-                label = { Text("Charging Station Name") },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(stationNameFocusRequester),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { ownerFocusRequester.requestFocus() })
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.charger),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
             )
-
-            OutlinedTextField(
-                value = owner,
-                onValueChange = { owner = it },
-                label = { Text("Owner Name") },
-                singleLine = true,
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(ownerFocusRequester),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { contactFocusRequester.requestFocus() })
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
             )
+            {
+                ///////////////////////////////////// Station Information /////////////////////////////////////
 
-            OutlinedTextField(
-                value = contact,
-                onValueChange = { contact = it },
-                label = { Text("Contact No.") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Phone,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(onNext = { locationFocusRequester.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(contactFocusRequester)
-            )
-
-            OutlinedTextField(
-                value = location,
-                onValueChange = { location = it },
-                label = { Text("Location") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { charger1Focus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(locationFocusRequester)
-            )
-
-            Box(
-                modifier = Modifier,
-            ) {
-
-                Column {
-
-                    Button(onClick = {
-                        val currentDateTime =
-                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                                Date()
-                            )
-                        dateTime = currentDateTime
-
-                        val gps = GPSFetcher(context)
-                        gps.fetchLocation { lat, lon, elev ->
-                            latitude = lat.toString()
-                            longitude = lon.toString()
-                            elevation = String.format(Locale.US, "%.2f", elev)
-                        }
-
-                    },
-                        modifier = Modifier.focusRequester(locationFocusRequester)
-                    )
-                    {
-                        Text("Get GPS Location")
-                    }
-
-                    OutlinedTextField(
-                        value = latitude,
-                        onValueChange = {},
-                        label = { Text("Latitude") },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = false
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Text(
+                        "Station Information", modifier = Modifier.padding(bottom = 8.dp),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        fontSize = 20.sp
                     )
 
                     OutlinedTextField(
-                        value = longitude,
-                        onValueChange = {},
-                        label = { Text("Longitude") },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = false
+                        value = stationName,
+                        onValueChange = { stationName = it },
+                        label = { Text("Charging Station Name") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(stationNameFocusRequester),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { ownerFocusRequester.requestFocus() })
                     )
 
                     OutlinedTextField(
-                        value = elevation,
-                        onValueChange = {},
-                        label = { Text("Elevation") },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = false
+                        value = owner,
+                        onValueChange = { owner = it },
+                        label = { Text("Owner Name") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(ownerFocusRequester),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { contactFocusRequester.requestFocus() })
                     )
 
                     OutlinedTextField(
-                        value = dateTime,
-                        onValueChange = {},
-                        label = { Text("Date & time") },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = false
+                        value = contact,
+                        onValueChange = { contact = it },
+                        label = { Text("Contact No.") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { locationFocusRequester.requestFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(contactFocusRequester)
+                    )
+
+                    OutlinedTextField(
+                        value = location,
+                        onValueChange = { location = it },
+                        label = { Text("Location") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onNext = { charger1Focus.requestFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(locationFocusRequester)
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
 
-            ///////////////////////////////////// Station Information /////////////////////////////////////
+                    Box(
+                        modifier = Modifier,
+                    ) {
 
-            Spacer(modifier = Modifier.height(8.dp))
+                        Column {
 
-            ///////////////////////////////////// 1 /////////////////////////////////////
+                            Button(
+                                onClick = {
+                                    val currentDateTime =
+                                        SimpleDateFormat(
+                                            "yyyy-MM-dd HH:mm:ss",
+                                            Locale.getDefault()
+                                        ).format(
+                                            Date()
+                                        )
+                                    dateTime = currentDateTime
 
-//            Text(text = ("Charger 1"))
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            OutlinedTextField(
-//                value = charger1,
-//                onValueChange = { charger1 = it },
-//                label = { Text("Charger No ") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCapacity1Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(charger1Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCapacity1,
-//                onValueChange = { chargerCapacity1 = it },
-//                label = { Text("Charger Capacity ") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerMake1Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity1Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerMake1,
-//                onValueChange = { chargerMake1 = it },
-//                label = { Text("Charger Made") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerType1Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake1Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerType1,
-//                onValueChange = { chargerType1 = it },
-//                label = { Text("Charger Type") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCost1Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType1Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCost1,
-//                onValueChange = { chargerCost1 = it },
-//                label = { Text("Charger Cost") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { charger2Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost1Focus)
-//            )
-//
-//            ///////////////////////////////////// 1 /////////////////////////////////////
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            ///////////////////////////////////// 2 /////////////////////////////////////
-//
-//            Text(text = ("Charger 2"))
-//
-//            OutlinedTextField(
-//                value = charger2,
-//                onValueChange = { charger2 = it },
-//                label = { Text("Charger No 2") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCapacity2Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(charger2Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCapacity2,
-//                onValueChange = { chargerCapacity2 = it },
-//                label = { Text("Charger Capacity 2") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerMake2Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity2Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerMake2,
-//                onValueChange = { chargerMake2 = it },
-//                label = { Text("Charger Made 2") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerType2Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake2Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerType2,
-//                onValueChange = { chargerType2 = it },
-//                label = { Text("Charger Type 2") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCost2Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType2Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCost2,
-//                onValueChange = { chargerCost2 = it },
-//                label = { Text("Charger Cost 2") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { charger3Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost2Focus)
-//            )
-//
-//            ///////////////////////////////////// 2 /////////////////////////////////////
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            ///////////////////////////////////// 3 /////////////////////////////////////
-//
-//            Text(text = ("Charger 3"))
-//
-//            OutlinedTextField(
-//                value = charger3,
-//                onValueChange = { charger3 = it },
-//                label = { Text("Charger No 3") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCapacity3Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(charger3Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCapacity3,
-//                onValueChange = { chargerCapacity3 = it },
-//                label = { Text("Charger Capacity 3") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerMake3Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCapacity3Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerMake3,
-//                onValueChange = { chargerMake3 = it },
-//                label = { Text("Charger Made 3") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerType3Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerMake3Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerType3,
-//                onValueChange = { chargerType3 = it },
-//                label = { Text("Charger Type 3") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { chargerCost3Focus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerType3Focus)
-//            )
-//
-//            OutlinedTextField(
-//                value = chargerCost3,
-//                onValueChange = { chargerCost3 = it },
-//                label = { Text("Charger Cost 3") },
-//                singleLine = true,
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-//                keyboardActions = KeyboardActions(onNext = { electricityCostFocus.requestFocus() }),
-//                modifier = Modifier.fillMaxWidth().focusRequester(chargerCost3Focus)
-//            )
-//
-//            ///////////////////////////////////////  3 ///////////////////////////////////////
+                                    val gps = GPSFetcher(context)
+                                    gps.fetchLocation { lat, lon, elev ->
+                                        latitude = lat.toString()
+                                        longitude = lon.toString()
+                                        elevation = String.format(Locale.US, "%.2f", elev)
+                                    }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                                },
+                                modifier = Modifier.focusRequester(locationFocusRequester),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent, // Matches background
+                                    contentColor = Color.Black// Text color
+                                )
+                            )
+                            {
+                                Text(
+                                    "Get GPS Location",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        textDecoration = TextDecoration.Underline
+                                    ),
+                                    fontSize = 18.sp
+                                )
+                            }
 
-            ///////////////////////////////////// Station Description /////////////////////////////////////
+                            OutlinedTextField(
+                                value = latitude,
+                                onValueChange = {},
+                                label = { Text("Latitude") },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false
+                            )
 
-            Text(text = "Station Description")
+                            OutlinedTextField(
+                                value = longitude,
+                                onValueChange = {},
+                                label = { Text("Longitude") },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false
+                            )
 
-            OutlinedTextField(
-                value = costOfElec,
-                onValueChange = { costOfElec = it },
-                label = { Text("Cost of Electricity per month ") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { avgMbFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(electricityCostFocus)
-            )
+                            OutlinedTextField(
+                                value = elevation,
+                                onValueChange = {},
+                                label = { Text("Elevation") },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false
+                            )
 
-            OutlinedTextField(
-                value = avgMb,
-                onValueChange = { avgMb = it },
-                label = { Text("Average no. of Micro bus per day") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { avgCbFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(avgMbFocus)
-            )
+                            OutlinedTextField(
+                                value = dateTime,
+                                onValueChange = {},
+                                label = { Text("Date & time") },
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = false
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
 
-            OutlinedTextField(
-                value = avgCb,
-                onValueChange = { avgCb = it },
-                label = { Text("Average no. of Car bus per day") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { anyChallengeFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(avgCbFocus)
-            )
-
-            OutlinedTextField(
-                value = anyChallenge,
-                onValueChange = { anyChallenge = it },
-                label = { Text("Any challenges or issues during implementation") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(anyChallengeFocus)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            CaptureImageAsBitmapScreen(
-                initialPhoto1 = photo1,
-                initialPhoto2 = photo2,
-                onPhoto1Captured = { photo1 = it },
-                onPhoto2Captured = { photo2 = it }
-            )
-
-            ///////////////////////////////////// Station Description /////////////////////////////////////
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ///////////////////////////////////// SAVE /////////////////////////////////////
-            Column {
+                ///////////////////////////////////// Station Information /////////////////////////////////////
 
                 Spacer(modifier = Modifier.height(8.dp))
-
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 Button(
                     onClick = {
-                        if (
-                            owner.isNotEmpty() && contact.isNotEmpty() && stationName.isNotEmpty() &&
-                            location.isNotEmpty() && longitude.isNotEmpty() &&
-                            costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
+                        context.startActivity(Intent(context, Charger::class.java))
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent, // Matches background
+                        contentColor = Color.Black// Text color
+                    )
+                ) {
+                    Text(
+                        "Add Charger",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ///////////////////////////////////// Station Description /////////////////////////////////////
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Text(
+                        text = "Station Description",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        fontSize = 20.sp
+                    )
+
+                    OutlinedTextField(
+                        value = costOfElec,
+                        onValueChange = { costOfElec = it },
+                        label = { Text("Cost of Electricity per month ") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { avgMbFocus.requestFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(electricityCostFocus)
+                    )
+
+                    OutlinedTextField(
+                        value = avgMb,
+                        onValueChange = { avgMb = it },
+                        label = { Text("Average no. of Micro bus per day") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { avgCbFocus.requestFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(avgMbFocus)
+                    )
+
+                    OutlinedTextField(
+                        value = avgCb,
+                        onValueChange = { avgCb = it },
+                        label = { Text("Average no. of Car bus per day") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(onNext = { anyChallengeFocus.requestFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(avgCbFocus)
+                    )
+
+                    OutlinedTextField(
+                        value = anyChallenge,
+                        onValueChange = { anyChallenge = it },
+                        label = { Text("Any challenges or issues during implementation") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(anyChallengeFocus)
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Text(
+                        text = "Take Photo",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        fontSize = 20.sp
+                    )
+
+                    CaptureImageAsBitmapScreen(
+                        initialPhoto1 = photo1,
+                        initialPhoto2 = photo2,
+                        onPhoto1Captured = { photo1 = it },
+                        onPhoto2Captured = { photo2 = it }
+                    )
+                }
+
+
+                ///////////////////////////////////// Station Description /////////////////////////////////////
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                ///////////////////////////////////// SAVE /////////////////////////////////////
+                Column {
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    Button(
+                        onClick = {
+                            if (
+                                owner.isNotEmpty() && contact.isNotEmpty() && stationName.isNotEmpty() &&
+                                location.isNotEmpty() && longitude.isNotEmpty() &&
+                                costOfElec.isNotEmpty() && avgCb.isNotEmpty() && avgMb.isNotEmpty() && anyChallenge.isNotEmpty()
 
 //                        && charger1.isNotEmpty() && chargerCapacity1.isNotEmpty() && chargerCost1.isNotEmpty()
 //                        && chargerMake1.isNotEmpty() && chargerType1.isNotEmpty() &&  chargerCapacity2.isNotEmpty()
 //                        && chargerCost2.isNotEmpty() && chargerMake2.isNotEmpty() && chargerType2.isNotEmpty()
 //                        && charger3.isNotEmpty() && chargerCapacity3.isNotEmpty() && chargerCost3.isNotEmpty()
 //                        && chargerMake3.isNotEmpty() && chargerType3.isNotEmpty() && charger2.isNotEmpty()
-                        ) {
-                            val contactInt = contact.toLong()
-                            val longitudeDouble = longitude.toDouble()
-                            val latitudeDouble = latitude.toDouble()
-                            val elevationDouble = elevation.toDouble()
+                            ) {
+                                val contactInt = contact.toLong()
+                                val longitudeDouble = longitude.toDouble()
+                                val latitudeDouble = latitude.toDouble()
+                                val elevationDouble = elevation.toDouble()
 
 //                            val chargerCostInt1 = chargerCost1.toLong()
 //
@@ -585,35 +501,35 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 //
 //                            val chargerCostInt3 = chargerCost3.toLong()
 
-                            val uuid = temp
+                                val uuid = temp
 
-                            val newStation = photo1?.let {
-                                photo2?.let { it1 ->
-                                    ChargingStationData(
-                                        id = station?.id ?: 0,
-                                        uuid = uuid,
-                                        owner = owner,
-                                        stationName = stationName,
-                                        contact = contactInt,
-                                        location = location,
-                                        longitude = longitudeDouble,
-                                        latitude = latitudeDouble,
-                                        elevation = elevationDouble,
-                                        dateTime = dateTime,
+                                val newStation = photo1?.let {
+                                    photo2?.let { it1 ->
+                                        ChargingStationData(
 
-                                        electricityCostPerMonth = costOfElec.toInt(),
-                                        microBusPerDay = avgMb.toInt(),
-                                        carBusPerDay = avgCb.toInt(),
-                                        challenges = anyChallenge,
-                                        photo1 = photo1!!,
-                                        photo2 = photo2!!,
+                                            id = station?.id ?: 0,
+                                            uuid = uuid,
+                                            owner = owner,
+                                            stationName = stationName,
+                                            contact = contactInt,
+                                            location = location,
+                                            longitude = longitudeDouble,
+                                            latitude = latitudeDouble,
+                                            elevation = elevationDouble,
+                                            dateTime = dateTime,
+
+                                            electricityCostPerMonth = costOfElec.toInt(),
+                                            microBusPerDay = avgMb.toInt(),
+                                            carBusPerDay = avgCb.toInt(),
+                                            challenges = anyChallenge,
+                                            photo1 = photo1!!,
+                                            photo2 = photo2!!,
 
 //                                        chargerCapacity1 = chargerCapacity1,
 //                                        chargerMake1 = chargerMake1,
 //                                        chargerType1 = chargerType1,
 //                                        chargerCost1 = chargerCostInt1,
 //                                        charger1 = charger1,
-//
 //
 //                                        charger2 = charger2,
 //                                        chargerCapacity2 = chargerCapacity2,
@@ -627,30 +543,31 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 //                                        chargerType3 = chargerType3,
 //                                        chargerCost3 = chargerCostInt3,
 
-                                    )
+                                        )
+                                    }
                                 }
-                            }
 
-                            if (station == null) {
-                                // INSERT
-                                if (newStation != null) {
-                                    db?.insertCharger1(
-                                        uuid = newStation.uuid,
-                                        owner = newStation.owner,
-                                        contact = newStation.contact,
-                                        stationName = newStation.stationName,
-                                        location = newStation.location,
-                                        longitude = newStation.longitude,
-                                        latitude = newStation.latitude,
-                                        elevation = newStation.elevation,
-                                        dateTime = newStation.dateTime,
+                                if (station == null) {
+                                    // INSERT
+                                    if (newStation != null) {
+                                        db?.insertCharger1(
+                                            uuid = newStation.uuid,
+                                            owner = newStation.owner,
+                                            contact = newStation.contact,
+                                            stationName = newStation.stationName,
+                                            location = newStation.location,
+                                            longitude = newStation.longitude,
+                                            latitude = newStation.latitude,
+                                            elevation = newStation.elevation,
+                                            dateTime = newStation.dateTime,
 
-                                        costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
-                                        averageNoOfMicroBusPerDay = newStation.microBusPerDay,
-                                        averageNoOfCarBusPerDay = newStation.carBusPerDay,
-                                        anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
-                                        photo1 = newStation.photo1,
-                                        photo2 = newStation.photo2)
+                                            costOfElectrictyEerMonth = newStation.electricityCostPerMonth,
+                                            averageNoOfMicroBusPerDay = newStation.microBusPerDay,
+                                            averageNoOfCarBusPerDay = newStation.carBusPerDay,
+                                            anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
+                                            photo1 = newStation.photo1,
+                                            photo2 = newStation.photo2
+                                        )
 
 //                                        charger1 = newStation.charger1.toLong(),
 //                                        chargerMake1 = newStation.chargerMake1,
@@ -670,41 +587,49 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 //                                        chargerCost3 = newStation.chargerCost3,
 //                                        chargerCapacity3 = newStation.chargerCapacity3,)
 
-                                }
-                                Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT)
-                                    .show()
-                            } else {
-                                // UPDATE
-                                if (newStation != null) {
-                                    val updated = db?.updateChargingStation(newStation)
-                                    if (updated == true) {
-                                        Toast.makeText(
-                                            context,
-                                            "Station updated!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Update failed!",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                    }
+                                    Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT)
+                                        .show()
+                                } else {
+                                    // UPDATE
+                                    if (newStation != null) {
+                                        val updated = db?.updateChargingStation(newStation)
+                                        if (updated == true) {
+                                            Toast.makeText(
+                                                context,
+                                                "Station updated!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "Update failed!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     }
                                 }
-                            }
 
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                        } else {
-                            Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent, // Matches background
-                        contentColor = Color.Black// Text color
-                    ),
-                    elevation = null,
-                ) {
-                    Text("Save")
+                                context.startActivity(Intent(context, MainActivity::class.java))
+                            } else {
+                                Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent, // Matches background
+                            contentColor = Color.Black// Text color
+                        ),
+                        elevation = null,
+                    ) {
+                        Text(
+                            "Save",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            fontSize = 20.sp
+                        )
+                    }
                 }
             }
         }
@@ -792,7 +717,11 @@ fun CaptureImageAsBitmapScreen(
             elevation = null,
             enabled = byteArray1 == null,
             modifier = Modifier.padding(vertical = 8.dp)
-        ) { Text("Capture First Photo") }
+        ) { Text("Capture First Photo",
+            style = MaterialTheme.typography.titleMedium.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+        )}
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -813,7 +742,12 @@ fun CaptureImageAsBitmapScreen(
             elevation = null,
             enabled = byteArray1 != null && byteArray2 == null,
             modifier = Modifier.padding(vertical = 8.dp)
-        ) { Text("Capture Second Photo") }
+        ) { Text("Capture Second Photo",
+            style = MaterialTheme.typography.titleMedium.copy(
+                textDecoration = TextDecoration.Underline
+            ),
+            fontSize = 18.sp
+        )}
     }
 }
 
