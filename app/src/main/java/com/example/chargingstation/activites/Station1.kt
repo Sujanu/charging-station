@@ -592,6 +592,30 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             fontSize = 20.sp
                         )
                     }
+      
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+
+                            val intent = Intent(context, Charger::class.java)
+                            intent.putExtra("uuid", temp) // `temp` holds the UUID
+                            context.startActivity(intent)
+
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent, // Matches background
+                            contentColor = Color.Black// Text color
+                        )
+                    ) {
+                        Text(
+                            "Add Charger",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }
