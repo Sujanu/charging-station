@@ -59,12 +59,9 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
                     "chargerMake TEXT NOT NULL," +
                     "chargerCost LONG NOT NULL)"
         )
-
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-
-    }
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
 
     fun insertUser(
         username: String,
@@ -224,6 +221,31 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
             null
         }
     }
+
+    fun getChargersByUUID(uuid: String): List<ChargerData> {
+        val chargerList = mutableListOf<ChargerData>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $CHARGER WHERE uuid = ?", arrayOf(uuid))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val charger = ChargerData(
+                    id = cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                    charger = cursor.getInt(cursor.getColumnIndexOrThrow("charger")),
+                    chargerType = cursor.getString(cursor.getColumnIndexOrThrow("chargerType")),
+                    chargerMake = cursor.getString(cursor.getColumnIndexOrThrow("chargerMake")),
+                    chargerCost = cursor.getLong(cursor.getColumnIndexOrThrow("chargerCost")),
+                    chargerCapacity = cursor.getString(cursor.getColumnIndexOrThrow("chargerCapacity")),
+                    uuid = cursor.getString(cursor.getColumnIndexOrThrow("uuid"))
+                )
+                chargerList.add(charger)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return chargerList
+    }
+
 
     fun getStationById(id: Int): ChargingStationData? {
         val db = readableDatabase

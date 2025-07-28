@@ -76,9 +76,10 @@ import java.io.File
 class DetailPage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
         val dbHelper = ChargingStation(this)
         val stationId = intent.getIntExtra("station_id", -1)
-
 
         val selectedStation = if (stationId != -1) {
             dbHelper.getStationById(stationId)
@@ -86,14 +87,17 @@ class DetailPage : ComponentActivity() {
             null
         }
 
-        enableEdgeToEdge()
+        val chargers = if (selectedStation != null) {
+            dbHelper.getChargersByUUID(selectedStation.uuid)
+        } else emptyList()
+
         setContent {
             ChargingStationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DetailView(station = selectedStation)
+                    DetailView(station = selectedStation, chargers = chargers)
                 }
             }
         }
@@ -102,7 +106,7 @@ class DetailPage : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailView(station: ChargingStationData?) {
+fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
     val context = LocalContext.current
     var stationToDelete by remember { mutableStateOf<Int?>(null) }
 
@@ -158,17 +162,45 @@ fun DetailView(station: ChargingStationData?) {
                     StationDetailText("Recorded on", station.dateTime)
                 }
 
-//                 Charger Details Section
+                ///////////////////////////////////// Charger Details Section /////////////////////////////////////
 
-//                Section(title = "Charger Details") {
-//                    ChargerDetailCard("Charger 1", station)
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    ChargerDetailCard("Charger 2", station)
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    ChargerDetailCard("Charger 3", station)
-//                }
+                Section(title = "Chargers") {
+                    if (chargers.isEmpty()) {
+                        Text("No chargers found for this station.")
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            chargers.forEachIndexed { index, charger ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7))
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(
+                                            text = "Charger ${index + 1}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
 
-                // Operational Data Section
+                                        StationDetailText("Charger:", charger.charger.toString())
+                                        StationDetailText("Type:", charger.chargerType)
+                                        StationDetailText("Charger Capacity:", charger.chargerCapacity)
+                                        StationDetailText("Charger Make:", charger.chargerMake)
+                                        StationDetailText("Charger Cost:", charger.chargerCost.toString())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                ///////////////////////////////////// Operational Data Section /////////////////////////////////////
 
                 Section(title = "Operational Data") {
                     StationDetailText("Avg. Electricity Cost/Month", "${station.electricityCostPerMonth}")
@@ -239,6 +271,7 @@ fun DetailView(station: ChargingStationData?) {
                     }
                 }
             }
+
             // outside Column
             stationToDelete?.let { id ->
                 AlertDialog(
@@ -299,38 +332,6 @@ fun StationDetailText(label: String, value: String, singleLine: Boolean = true) 
     }
     Spacer(modifier = Modifier.height(8.dp))
 }
-
-
-//@Composable
-//fun ChargerDetailCard(chargerId: String, station: ChargingStationData , station1: ChargerData) {
-//
-//
-//    val (chargerNo, make, type, capacity, cost) = when (chargerId) {
-//        "Charger 1" -> listOf(station.charger1, station.chargerMake1, station.chargerType1, station.chargerCapacity1, station.chargerCost1)
-//        "Charger 2" -> listOf(station.charger2, station.chargerMake2, station.chargerType2, station.chargerCapacity2, station.chargerCost2)
-//        else -> listOf(station.charger3, station.chargerMake3, station.chargerType3, station.chargerCapacity3, station.chargerCost3)
-//    }
-//
-//    Card(
-//        modifier = Modifier.fillMaxWidth(),
-//        elevation = CardDefaults.cardElevation(4.dp),
-//        shape = RoundedCornerShape(12.dp),
-//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-//    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            Text(
-//                text = "$chargerId - #$chargerNo",
-//                style = MaterialTheme.typography.titleMedium,
-//                fontWeight = FontWeight.Bold
-//            )
-//            Spacer(modifier = Modifier.height(12.dp))
-//            StationDetailText("Make", make.toString())
-//            StationDetailText("Type", type.toString())
-//            StationDetailText("Capacity", capacity.toString())
-//            StationDetailText("Cost", "$cost")
-//        }
-//    }
-//}
 
 @Composable
 fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
