@@ -176,7 +176,7 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                                         .padding(horizontal = 8.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F7F7))
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(

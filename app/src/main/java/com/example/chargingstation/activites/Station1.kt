@@ -195,10 +195,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent // Make card background transparent
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         "Station Information", modifier = Modifier.padding(bottom = 8.dp),
@@ -263,10 +262,11 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent // Make card background transparent
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+//                    colors = CardDefaults.cardColors(
+//                        containerColor = Color.Transparent // Make card background transparent
+//                    ),
+//                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
 
                     Box(
@@ -357,10 +357,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent // Make card background transparent
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Station Description",
@@ -433,10 +431,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.Transparent // Make card background transparent
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Take Photo",
