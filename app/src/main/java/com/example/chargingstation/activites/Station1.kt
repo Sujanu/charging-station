@@ -549,7 +549,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                     }
                                 }
 
-                                context.startActivity(Intent(context, MainActivity::class.java))
+                                context.startActivity(Intent(context, Charger::class.java))
                             } else {
                                 Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT)
                                     .show()

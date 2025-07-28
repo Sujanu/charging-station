@@ -118,23 +118,24 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null, uuid: Stri
     val context = LocalContext.current
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Charging Station Info") },
-                actions = {
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("Charging Station Info") },
+//                actions = {
+//
+//                    IconButton(onClick = {
+//                        context.startActivity(Intent(context, MainActivity::class.java))
+//                    }) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Home,
+//                            contentDescription = "Home"
+//                        )
+//                    }
+//
+//                }
+//            )
+//        }
 
-                    IconButton(onClick = {
-                        context.startActivity(Intent(context, MainActivity::class.java))
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Home,
-                            contentDescription = "Home"
-                        )
-                    }
-
-                }
-            )
-        }
     )
     { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
@@ -145,185 +146,198 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null, uuid: Stri
                 modifier = Modifier.matchParentSize()
             )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(text = ("Charger"))
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = charger,
-                onValueChange = { charger = it },
-                label = { Text("Charger No ") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(onNext = { chargerCapacityFocus.requestFocus() }),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(chargerFocus)
-            )
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(text = ("Charger"))
 
-            OutlinedTextField(
-                value = chargerCapacity,
-                onValueChange = { chargerCapacity = it },
-                label = { Text("Charger Capacity ") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { chargerMakeFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(chargerCapacityFocus)
-            )
+                Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = chargerMake,
-                onValueChange = { chargerMake = it },
-                label = { Text("Charger Made") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { chargerTypeFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(chargerMakeFocus)
-            )
+                OutlinedTextField(
+                    value = charger,
+                    onValueChange = { charger = it },
+                    label = { Text("Charger No ") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(onNext = { chargerCapacityFocus.requestFocus() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(chargerFocus)
+                )
 
-            ChargerTypeDropdown(
-                selectedType = chargerType,
-                onTypeSelected = { chargerType = it }
-            )
+                OutlinedTextField(
+                    value = chargerCapacity,
+                    onValueChange = { chargerCapacity = it },
+                    label = { Text("Charger Capacity ") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { chargerMakeFocus.requestFocus() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(chargerCapacityFocus)
+                )
 
-            OutlinedTextField(
-                value = chargerCost,
-                onValueChange = { chargerCost = it },
-                label = { Text("Charger Cost") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(onNext = { chargerFocus.requestFocus() }),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(chargerCostFocus)
-            )
+                OutlinedTextField(
+                    value = chargerMake,
+                    onValueChange = { chargerMake = it },
+                    label = { Text("Charger Made") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { chargerTypeFocus.requestFocus() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(chargerMakeFocus)
+                )
 
-            Button(
-                onClick = {
-                    if (
-                        charger.isNotEmpty() &&
-                        chargerCapacity.isNotEmpty() &&
-                        chargerMake.isNotEmpty() &&
-                        chargerType.isNotEmpty() &&
-                        chargerCost.isNotEmpty()
-                    ) {
+                ChargerTypeDropdown(
+                    selectedType = chargerType,
+                    onTypeSelected = { chargerType = it }
+                )
 
-                        val chargerData = ChargerData(
-                            id = station?.id ?: 0,
-                            charger = charger.toInt(),
-                            chargerCapacity = chargerCapacity.toString(),
-                            chargerMake = chargerMake,
-                            chargerType = chargerType,
-                            chargerCost = chargerCost.toLong(),
-                            uuid = uuid // <-- assign the UUID
-                        )
+                OutlinedTextField(
+                    value = chargerCost,
+                    onValueChange = { chargerCost = it },
+                    label = { Text("Charger Cost") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(onNext = { chargerFocus.requestFocus() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(chargerCostFocus)
+                )
 
-                        ///////////////////////////  DBMS ///////////////////////////
+                Button(
+                    onClick = {
+                        if (
+                            charger.isNotEmpty() &&
+                            chargerCapacity.isNotEmpty() &&
+                            chargerMake.isNotEmpty() &&
+                            chargerType.isNotEmpty() &&
+                            chargerCost.isNotEmpty()
+                        ) {
 
-                        if (station == null) {
-                            // Add new charger
-                            val id = db?.addCharger(chargerData) ?: -1L
-                            if (id != -1L) {
-                                showDialog = true
-                                Toast.makeText(
-                                    context,
-                                    "Charger Added Successfully!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            val chargerData = ChargerData(
+                                id = station?.id ?: 0,
+                                charger = charger.toInt(),
+                                chargerCapacity = chargerCapacity.toString(),
+                                chargerMake = chargerMake,
+                                chargerType = chargerType,
+                                chargerCost = chargerCost.toLong(),
+                                uuid = uuid // <-- assign the UUID
+                            )
 
+                            ///////////////////////////  DBMS ///////////////////////////
+
+                            if (station == null) {
+                                // Add new charger
+                                val id = db?.addCharger(chargerData) ?: -1L
+                                if (id != -1L) {
+                                    showDialog = true
+                                    Toast.makeText(
+                                        context,
+                                        "Charger Added Successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to Add Charger",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
+                                }
                             } else {
-                                Toast.makeText(context, "Failed to Add Charger", Toast.LENGTH_SHORT)
-                                    .show()
+                                // Update existing charger
+                                chargerData.id = station.id
+                                val success = db?.updateCharger(chargerData) ?: false
+                                if (success) {
+                                    Toast.makeText(
+                                        context,
+                                        "Charger Updated Successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to Update Charger",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
                         } else {
-                            // Update existing charger
-                            chargerData.id = station.id
-                            val success = db?.updateCharger(chargerData) ?: false
-                            if (success) {
-                                Toast.makeText(
-                                    context,
-                                    "Charger Updated Successfully!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Failed to Update Charger",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, // Matches background
-                    contentColor = Color.Black// Text color
-                )
-            ) {
-                Text(
-                    "Save",
-                    fontSize = 20.sp
-                )
-            }
-
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = { Text("Add Another Charger?") },
-                    text = { Text("Do you want to add another charger?") },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            // Clear fields
-                            charger = ""
-                            chargerCapacity = ""
-                            chargerType = ""
-                            chargerMake = ""
-                            chargerCost = ""
-                            showDialog = false
-                            Toast.makeText(context, "Ready for next entry!", Toast.LENGTH_SHORT)
+                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT)
                                 .show()
-                        }) {
-                            Text("Yes")
                         }
                     },
-                    dismissButton = {
-                        TextButton(onClick = {
-                            showDialog = false
-                            // Go back to main/home
-                            context.startActivity(Intent(context, Station1::class.java))
-                        }) {
-                            Text("No")
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent, // Matches background
+                        contentColor = Color.Black// Text color
+                    )
+                ) {
+                    Text(
+                        "Save",
+                        fontSize = 20.sp
+                    )
+                }
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Add Another Charger?") },
+                        text = { Text("Do you want to add another charger?") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                // Clear fields
+
+                                charger = ""
+                                chargerCapacity = ""
+                                chargerType = ""
+                                chargerMake = ""
+                                chargerCost = ""
+
+                                showDialog = false
+                                Toast.makeText(context, "Ready for next entry!", Toast.LENGTH_SHORT)
+                                    .show()
+                            }) {
+                                Text("Yes")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+
+                                charger = ""
+                                chargerCapacity = ""
+                                chargerType = ""
+                                chargerMake = ""
+                                chargerCost = ""
+
+                                showDialog = false
+                                // Go back to main/home
+
+                            }) {
+                                Text("No")
+                            }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
-            /////////////////////////// BUTTON END ///////////////////////////
+                /////////////////////////// BUTTON END ///////////////////////////
 
-
-        } ///////////////////////////// COLUMN END /////////////////////////////
-    }
+            } ///////////////////////////// COLUMN END /////////////////////////////
+        }
     }
 }
 
