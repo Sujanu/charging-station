@@ -1,6 +1,5 @@
 package com.example.chargingstation.activites
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -174,12 +173,12 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
     { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.charger),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
-            )
+//            Image(
+//                painter = painterResource(id = R.drawable.charger),
+//                contentDescription = null,
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier.matchParentSize()
+//            )
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -570,16 +569,14 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             fontSize = 20.sp
                         )
                     }
- 8u
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
                         onClick = {
-
                             val intent = Intent(context, Charger::class.java)
                             intent.putExtra("uuid", temp) // `temp` holds the UUID
                             context.startActivity(intent)
-
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent, // Matches background
@@ -595,28 +592,16 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         )
                     }
                 }
+
             }
         }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 @Composable
 fun uidCreator(): String {
-    val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-    val existingUuid = sharedPreferences.getString("uuid_key", null)
-
-    return if (existingUuid != null) {
-        existingUuid
-    } else {
-        val newUuid = UUID.randomUUID().toString().uppercase()
-        sharedPreferences.edit().putString("uuid_key", newUuid).apply()
-        newUuid
-    }
+    return UUID.randomUUID().toString().uppercase()
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -780,3 +765,7 @@ private fun PhotoDisplay(label: String, byteArray: ByteArray?, onDelete: () -> U
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+

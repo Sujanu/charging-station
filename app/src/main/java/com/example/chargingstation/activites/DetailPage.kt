@@ -31,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
@@ -205,6 +206,21 @@ fun DetailView(station: ChargingStationData?) {
                         )
                     }
 
+                    Button( onClick = {
+                        context.startActivity(Intent(context, Charger::class.java))
+                    },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent, // Matches background
+                            contentColor = Color.Black// Text color
+                        ) ){
+                        Text("Add Charger  ")
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Add"
+                        )
+                    }
+
                     Button(onClick = {
                         stationToDelete = station.id
                     },
@@ -239,11 +255,11 @@ fun DetailView(station: ChargingStationData?) {
                         }) { Text("Yes") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { stationToDelete = null }) { Text("Cancel") }
+                        TextButton(onClick = { stationToDelete = null }) { Text("Cancel")
+                        }
                     }
                 )
             }
-
         }
     }
 }
