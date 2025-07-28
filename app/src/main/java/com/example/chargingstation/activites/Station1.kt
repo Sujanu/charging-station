@@ -683,7 +683,8 @@ fun CaptureImageAsBitmapScreen(
             style = MaterialTheme.typography.titleMedium.copy(
                 textDecoration = TextDecoration.Underline
             ),
-        )}
+          )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
