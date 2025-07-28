@@ -1,6 +1,7 @@
 package com.example.chargingstation.activites
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -59,14 +60,15 @@ class Charger : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val uuid = intent.getStringExtra("uuid")
+        val uuidFromIntent = intent.getStringExtra("uuid")
+        val uuid = uuidFromIntent ?: getUuidFromPreferences(this)
 
         if (uuid != null) {
-            Log.d("ChargerUUID", "Received UUID: $uuid")
-            // You can now use this UUID to insert/update charger entries linked to the charging station
+            Log.d("ChargerUUID", "Using UUID: $uuid")
+            // Use this UUID in Composable
         } else {
             Toast.makeText(this, "UUID not found", Toast.LENGTH_SHORT).show()
-            finish() // Optional: Close if no UUID
+            finish()
         }
 
         val dbHelper = ChargingStation(this)
@@ -94,6 +96,12 @@ class Charger : ComponentActivity() {
         }
     }
 }
+
+fun getUuidFromPreferences(context: Context): String? {
+    val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+    return sharedPreferences.getString("uuid_key", null)
+}
+
 
 @SuppressLint("ContextCastToActivity")
 @OptIn(ExperimentalMaterial3Api::class)

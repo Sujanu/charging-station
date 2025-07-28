@@ -1,5 +1,6 @@
 package com.example.chargingstation.activites
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -350,29 +351,6 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = {
-
-                        val intent = Intent(context, Charger::class.java)
-                        intent.putExtra("uuid", temp) // `temp` holds the UUID
-                        context.startActivity(intent)
-
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent, // Matches background
-                        contentColor = Color.Black// Text color
-                    )
-                ) {
-                    Text(
-                        "Add Charger",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        fontSize = 18.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 ///////////////////////////////////// Station Description /////////////////////////////////////
@@ -592,7 +570,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             fontSize = 20.sp
                         )
                     }
-      
+ 8u
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
@@ -622,10 +600,23 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 @Composable
 fun uidCreator(): String {
-    return UUID.randomUUID().toString().uppercase()
+    val context = LocalContext.current
+    val sharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+    val existingUuid = sharedPreferences.getString("uuid_key", null)
+
+    return if (existingUuid != null) {
+        existingUuid
+    } else {
+        val newUuid = UUID.randomUUID().toString().uppercase()
+        sharedPreferences.edit().putString("uuid_key", newUuid).apply()
+        newUuid
+    }
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -789,5 +780,3 @@ private fun PhotoDisplay(label: String, byteArray: ByteArray?, onDelete: () -> U
         }
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

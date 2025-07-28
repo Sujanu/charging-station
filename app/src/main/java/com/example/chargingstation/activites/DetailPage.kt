@@ -19,12 +19,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -154,14 +157,15 @@ fun DetailView(station: ChargingStationData?) {
                     StationDetailText("Recorded on", station.dateTime)
                 }
 
-                 Charger Details Section
-                Section(title = "Charger Details") {
-                    ChargerDetailCard("Charger 1", station)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ChargerDetailCard("Charger 2", station)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ChargerDetailCard("Charger 3", station)
-                }
+//                 Charger Details Section
+
+//                Section(title = "Charger Details") {
+//                    ChargerDetailCard("Charger 1", station)
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    ChargerDetailCard("Charger 2", station)
+//                    Spacer(modifier = Modifier.height(16.dp))
+//                    ChargerDetailCard("Charger 3", station)
+//                }
 
                 // Operational Data Section
 
@@ -185,7 +189,11 @@ fun DetailView(station: ChargingStationData?) {
                         val tex = station.id
                         intent.putExtra("station_id", tex)
                         context.startActivity(intent)
-                    }
+                    },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent, // Matches background
+                            contentColor = Color.Black// Text color
+                        )
                     )
                     {
                         Text(text = "Edit    ")
@@ -199,7 +207,11 @@ fun DetailView(station: ChargingStationData?) {
 
                     Button(onClick = {
                         stationToDelete = station.id
-                    }
+                    },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent, // Matches background
+                            contentColor = Color.Black// Text color
+                    )
                     )
                     {
                         Text(text = "Delete    ")
@@ -273,36 +285,36 @@ fun StationDetailText(label: String, value: String, singleLine: Boolean = true) 
 }
 
 
-@Composable
-fun ChargerDetailCard(chargerId: String, station: ChargingStationData , station1: ChargerData) {
-
-
-    val (chargerNo, make, type, capacity, cost) = when (chargerId) {
-        "Charger 1" -> listOf(station.charger1, station.chargerMake1, station.chargerType1, station.chargerCapacity1, station.chargerCost1)
-        "Charger 2" -> listOf(station.charger2, station.chargerMake2, station.chargerType2, station.chargerCapacity2, station.chargerCost2)
-        else -> listOf(station.charger3, station.chargerMake3, station.chargerType3, station.chargerCapacity3, station.chargerCost3)
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "$chargerId - #$chargerNo",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            StationDetailText("Make", make.toString())
-            StationDetailText("Type", type.toString())
-            StationDetailText("Capacity", capacity.toString())
-            StationDetailText("Cost", "$cost")
-        }
-    }
-}
+//@Composable
+//fun ChargerDetailCard(chargerId: String, station: ChargingStationData , station1: ChargerData) {
+//
+//
+//    val (chargerNo, make, type, capacity, cost) = when (chargerId) {
+//        "Charger 1" -> listOf(station.charger1, station.chargerMake1, station.chargerType1, station.chargerCapacity1, station.chargerCost1)
+//        "Charger 2" -> listOf(station.charger2, station.chargerMake2, station.chargerType2, station.chargerCapacity2, station.chargerCost2)
+//        else -> listOf(station.charger3, station.chargerMake3, station.chargerType3, station.chargerCapacity3, station.chargerCost3)
+//    }
+//
+//    Card(
+//        modifier = Modifier.fillMaxWidth(),
+//        elevation = CardDefaults.cardElevation(4.dp),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(
+//                text = "$chargerId - #$chargerNo",
+//                style = MaterialTheme.typography.titleMedium,
+//                fontWeight = FontWeight.Bold
+//            )
+//            Spacer(modifier = Modifier.height(12.dp))
+//            StationDetailText("Make", make.toString())
+//            StationDetailText("Type", type.toString())
+//            StationDetailText("Capacity", capacity.toString())
+//            StationDetailText("Cost", "$cost")
+//        }
+//    }
+//}
 
 @Composable
 fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
@@ -327,7 +339,10 @@ fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Row( modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp))
+
+    {
         photo1?.let { byteArray ->
             val bitmap1 = remember(byteArray) { byteArrayToBitmap(byteArray) }
             bitmap1?.let { bmp ->
@@ -335,7 +350,8 @@ fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
                     bitmap = bmp.asImageBitmap(),
                     contentDescription = "Photo 1",
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(1f)
+                        .aspectRatio(1f)
                         .clip(RoundedCornerShape(16.dp))
                         .clickable { openFullscreen(byteArray) }
                 )
@@ -349,14 +365,12 @@ fun DisplayPhotos(photo1: ByteArray?, photo2: ByteArray?) {
                     bitmap = bmp.asImageBitmap(),
                     contentDescription = "Photo 2",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
+                        .weight(1f)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(12.dp))
                         .clickable { openFullscreen(byteArray) }
                 )
             }
         }
     }
 }
-
-
-
