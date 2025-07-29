@@ -99,10 +99,13 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
             put("chargerType", chargerData.chargerType)
             put("chargerCost", chargerData.chargerCost)
         }
-
         return db.insert(CHARGER, null, contentValues)
     }
 
+    fun deleteChargerById(id: Int): Int {
+        val db = writableDatabase
+        return db.delete("charger_table", "id=?", arrayOf(id.toString()))
+    }
 
     fun insertCharger1(
         uuid: String,
@@ -245,7 +248,6 @@ class ChargingStation(context: Context) : SQLiteOpenHelper(context, DATABASENAME
         cursor.close()
         return chargerList
     }
-
 
     fun getStationById(id: Int): ChargingStationData? {
         val db = readableDatabase

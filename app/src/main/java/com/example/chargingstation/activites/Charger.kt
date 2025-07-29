@@ -53,7 +53,7 @@ class Charger : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val uuid = intent.getStringExtra("uuid")
+        val uuid = intent.getStringExtra("station_uuid")
 
         if (uuid != null) {
             Log.d("ChargerUUID", "Received UUID: $uuid")
@@ -111,26 +111,7 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null, uuid: Stri
 
     val context = LocalContext.current
 
-    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text("Charging Station Info") },
-//                actions = {
-//
-//                    IconButton(onClick = {
-//                        context.startActivity(Intent(context, MainActivity::class.java))
-//                    }) {
-//                        Icon(
-//                            imageVector = Icons.Filled.Home,
-//                            contentDescription = "Home"
-//                        )
-//                    }
-//
-//                }
-//            )
-//        }
-
-    )
+    Scaffold()
     { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
@@ -286,6 +267,30 @@ fun ChargerScreen(db: ChargingStation?, station: ChargerData? = null, uuid: Stri
                         fontSize = 20.sp
                     )
                 }
+
+
+                if (station != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            val deleted = (db?.deleteChargerById(station.id) ?:0)>0
+                            if (deleted) {
+                                Toast.makeText(context, "Charger Deleted", Toast.LENGTH_SHORT).show()
+                                // Navigate back or clear fields
+                            } else {
+                                Toast.makeText(context, "Delete Failed", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Delete", fontSize = 20.sp)
+                    }
+                }
+
 
                 if (showDialog) {
                     AlertDialog(

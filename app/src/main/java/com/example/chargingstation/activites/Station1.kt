@@ -84,7 +84,9 @@ class Station1 : ComponentActivity() {
         val station = if (stationId != -1) {
             dbHelper.getStationById(stationId)
 
-        } else{ null}
+        } else {
+            null
+        }
 
         val allStations = dbHelper.getAllChargingStations()
         allStations.forEach {
@@ -119,7 +121,11 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     var dateTime by remember { mutableStateOf(station?.dateTime ?: "") }
     var latitude by remember { mutableStateOf(station?.latitude?.toString() ?: "") }
 
-    var costOfElec by remember {  mutableStateOf(station?.electricityCostPerMonth?.toString() ?: "") }
+    var costOfElec by remember {
+        mutableStateOf(
+            station?.electricityCostPerMonth?.toString() ?: ""
+        )
+    }
 
     var avgMb by remember { mutableStateOf(station?.microBusPerDay?.toString() ?: "") }
     var avgCb by remember { mutableStateOf(station?.carBusPerDay?.toString() ?: "") }
@@ -142,6 +148,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
     val avgCbFocus = remember { FocusRequester() }
     val anyChallengeFocus = remember { FocusRequester() }
 
+    var isSaveClicked by remember { mutableStateOf(false) }
 
     CaptureImageAsBitmapScreen(
         initialPhoto1 = photo1,
@@ -195,9 +202,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
 
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         "Station Information", modifier = Modifier.padding(bottom = 8.dp),
@@ -257,12 +264,14 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             .fillMaxWidth()
                             .focusRequester(locationFocusRequester)
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+
                 }
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
 //                    colors = CardDefaults.cardColors(
 //                        containerColor = Color.Transparent // Make card background transparent
 //                    ),
@@ -341,6 +350,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                 modifier = Modifier.fillMaxWidth(),
                                 enabled = false
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -357,8 +368,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Station Description",
@@ -424,6 +435,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                             .fillMaxWidth()
                             .focusRequester(anyChallengeFocus)
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+
                 }
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -431,8 +444,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Text(
                         text = "Take Photo",
@@ -522,9 +535,9 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                             photo1 = newStation.photo1,
                                             photo2 = newStation.photo2
                                         )
+                                        isSaveClicked = true // ✅ Set after insert
+                                        Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
                                     }
-                                    Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT)
-                                        .show()
                                 } else {
                                     // UPDATE
                                     if (newStation != null) {
@@ -545,7 +558,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                     }
                                 }
 
-                                context.startActivity(Intent(context, MainActivity::class.java))
+//                                context.startActivity(Intent(context, MainActivity::class.java))
                             } else {
                                 Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT)
                                     .show()
@@ -568,31 +581,33 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Button(
-                        onClick = {
-                            val intent = Intent(context, Charger::class.java)
-                            intent.putExtra("uuid", temp) // `temp` holds the UUID
-                            context.startActivity(intent)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent, // Matches background
-                            contentColor = Color.Black// Text color
-                        )
-                    ) {
-                        Text(
-                            "Add Charger",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                textDecoration = TextDecoration.Underline
-                            ),
-                            fontSize = 18.sp
-                        )
+                    if (isSaveClicked) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                val intent = Intent(context, Charger::class.java)
+                                intent.putExtra("uuid", temp) // `temp` holds the UUID
+                                context.startActivity(intent)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent, // Matches background
+                                contentColor = Color.Black// Text color
+                            )
+                        ) {
+                            Text(
+                                "Add Charger", style = MaterialTheme.typography.titleMedium.copy(
+                                    textDecoration = TextDecoration.Underline
+                                ), fontSize = 18.sp
+                            )
+                        }
                     }
                 }
-
             }
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @Composable
 fun uidCreator(): String {
@@ -675,11 +690,13 @@ fun CaptureImageAsBitmapScreen(
             elevation = null,
             enabled = byteArray1 == null,
             modifier = Modifier.padding(vertical = 8.dp)
-        ) { Text("Capture First Photo",
-            style = MaterialTheme.typography.titleMedium.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-          )
+        ) {
+            Text(
+                "Capture First Photo",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    textDecoration = TextDecoration.Underline
+                ),
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -701,12 +718,15 @@ fun CaptureImageAsBitmapScreen(
             elevation = null,
             enabled = byteArray1 != null && byteArray2 == null,
             modifier = Modifier.padding(vertical = 8.dp)
-        ) { Text("Capture Second Photo",
-            style = MaterialTheme.typography.titleMedium.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-            fontSize = 18.sp
-        )}
+        ) {
+            Text(
+                "Capture Second Photo",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    textDecoration = TextDecoration.Underline
+                ),
+                fontSize = 18.sp
+            )
+        }
     }
 }
 
@@ -716,7 +736,7 @@ fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? { // Return nullable Bitmap
     return try {
         BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     } catch (e: Exception) {
-         Log.e("ImageConversion", "Failed to decode byte array", e)
+        Log.e("ImageConversion", "Failed to decode byte array", e)
         null
     }
 }

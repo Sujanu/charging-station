@@ -109,6 +109,8 @@ class DetailPage : ComponentActivity() {
 fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
     val context = LocalContext.current
     var stationToDelete by remember { mutableStateOf<Int?>(null) }
+    var chargerToDelete by remember { mutableStateOf<Int?>(null) }
+
 
 
     Scaffold(
@@ -158,7 +160,10 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                     StationDetailText("Owner", station.owner)
                     StationDetailText("Contact", station.contact.toString())
                     StationDetailText("Location", station.location)
-                    StationDetailText("GPS Coordinates", "${station.latitude}, ${station.longitude}")
+                    StationDetailText(
+                        "GPS Coordinates",
+                        "${station.latitude}, ${station.longitude}"
+                    )
                     StationDetailText("Recorded on", station.dateTime)
                 }
 
@@ -176,7 +181,11 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                                         .padding(horizontal = 8.dp),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(
+                                            0xFFE3F2FD
+                                        )
+                                    )
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Text(
@@ -187,11 +196,67 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
 
-                                        StationDetailText("Charger:", charger.charger.toString())
-                                        StationDetailText("Type:", charger.chargerType)
-                                        StationDetailText("Charger Capacity:", charger.chargerCapacity)
-                                        StationDetailText("Charger Make:", charger.chargerMake)
-                                        StationDetailText("Charger Cost:", charger.chargerCost.toString())
+                                        StationDetailText("Charger", charger.charger.toString())
+                                        StationDetailText("Type", charger.chargerType)
+                                        StationDetailText(
+                                            "Charger Capacity",
+                                            charger.chargerCapacity
+                                        )
+                                        StationDetailText("Charger Make", charger.chargerMake)
+                                        StationDetailText(
+                                            "Charger Cost",
+                                            charger.chargerCost.toString()
+                                        )
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Button(
+                                                onClick = {
+                                                    val intent = Intent(context, Charger::class.java)
+                                                    intent.putExtra("station_uuid", station.uuid)  // pass UUID here
+                                                    context.startActivity(intent)
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = Color.Transparent, // Matches background
+                                                    contentColor = Color.Black// Text color
+                                                )
+                                            )
+                                            {
+                                                Text(text = "Edit    ")
+                                                Icon(
+                                                    modifier = Modifier
+                                                        .size(20.dp),
+                                                    imageVector = Icons.Filled.Edit,
+                                                    contentDescription = "Edit"
+                                                )
+                                            }
+                                            Column{
+                                            Button(
+                                                onClick = {
+                                                    chargerToDelete = charger.id
+                                                    context.startActivity(
+                                                        Intent(
+                                                            context, DetailPage::class.java
+                                                        )
+                                                    )
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = Color.Transparent, // Matches background
+                                                    contentColor = Color.Black// Text color
+                                                )
+                                            )
+                                            {
+                                                Text(text = "Delete    ")
+                                                Icon(
+                                                    modifier = Modifier.size(20.dp),
+                                                    imageVector = Icons.Filled.Delete,
+                                                    contentDescription = "Delete"
+                                                )
+                                            }
+                                        }
+                                        }
                                     }
                                 }
                             }
@@ -199,30 +264,38 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                     }
                 }
 
-
                 ///////////////////////////////////// Operational Data Section /////////////////////////////////////
 
                 Section(title = "Operational Data") {
-                    StationDetailText("Avg. Electricity Cost/Month", "${station.electricityCostPerMonth}")
+                    StationDetailText(
+                        "Avg. Electricity Cost/Month",
+                        "${station.electricityCostPerMonth}"
+                    )
                     StationDetailText("Avg. Cars/Buses per Day", station.carBusPerDay.toString())
                     StationDetailText("Avg. Microbuses per Day", station.microBusPerDay.toString())
-                    StationDetailText("Implementation Challenges", station.challenges, singleLine = false)
+                    StationDetailText(
+                        "Implementation Challenges",
+                        station.challenges,
+                        singleLine = false
+                    )
                 }
 
                 // Photos Section
                 Section(title = "Photos") {
                     DisplayPhotos(photo1 = station.photo1, photo2 = station.photo2)
                 }
-                Row (
+
+                Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Button(onClick = {
-                        val intent = Intent(context, Station1::class.java)
-                        val tex = station.id
-                        intent.putExtra("station_id", tex)
-                        context.startActivity(intent)
-                    },
+                ) {
+                    Button(
+                        onClick = {
+                            val tex = station.id
+                            val intent = Intent(context, Station1::class.java)
+                            intent.putExtra("station_id", tex)
+                            context.startActivity(intent)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent, // Matches background
                             contentColor = Color.Black// Text color
@@ -238,13 +311,17 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                         )
                     }
 
-                    Button( onClick = {
-                        context.startActivity(Intent(context, Charger::class.java))
-                    },
+                    Button(
+                        onClick = {
+                            val intent = Intent(context, Charger::class.java)
+                            intent.putExtra("station_uuid", station.uuid)  // pass UUID here
+                            context.startActivity(intent)
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent, // Matches background
                             contentColor = Color.Black// Text color
-                        ) ){
+                        )
+                    ) {
                         Text("Add Charger  ")
                         Icon(
                             modifier = Modifier.size(20.dp),
@@ -252,46 +329,59 @@ fun DetailView(station: ChargingStationData?, chargers: List<ChargerData>) {
                             contentDescription = "Add"
                         )
                     }
-
-                    Button(onClick = {
-                        stationToDelete = station.id
-                    },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent, // Matches background
-                            contentColor = Color.Black// Text color
-                    )
-                    )
-                    {
-                        Text(text = "Delete    ")
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "Delete"
+                    Column {
+                        Button(
+                            onClick = {
+                                stationToDelete = station.id
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent, // Matches background
+                                contentColor = Color.Black// Text color
+                            )
                         )
-                    }
-                }
-            }
-
-            // outside Column
-            stationToDelete?.let { id ->
-                AlertDialog(
-                    onDismissRequest = { stationToDelete = null },
-                    title = { Text("Confirm Deletion") },
-                    text = { Text("Are you sure you want to delete this station?") },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            val deleted = ChargingStation(context).deleteTaskById(id)
-                            Toast.makeText(context, "Deleted $deleted record(s)", Toast.LENGTH_SHORT).show()
-                            stationToDelete = null
-                            context.startActivity(Intent(context, MainActivity::class.java))
-                            // optionally finish() the DetailPage activity
-                        }) { Text("Yes") }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { stationToDelete = null }) { Text("Cancel")
+                        {
+                            Text(text = "Delete    ")
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Delete"
+                            )
                         }
-                    }
-                )
+
+
+                        // outside Column
+                        stationToDelete?.let { id ->
+                            AlertDialog(
+                                onDismissRequest = { stationToDelete = null },
+                                title = { Text("Confirm Deletion") },
+                                text = { Text("Are you sure you want to delete this station?") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        val deleted = ChargingStation(context).deleteTaskById(id)
+                                        Toast.makeText(
+                                            context,
+                                            "Deleted $deleted record(s)",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        stationToDelete = null
+                                        context.startActivity(
+                                            Intent(
+                                                context,
+                                                MainActivity::class.java
+                                            )
+                                        )
+                                        // optionally finish() the DetailPage activity
+                                    }) { Text("Yes") }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { stationToDelete = null }) {
+                                        Text("Cancel")
+                                    }
+                                }
+                            )
+                        }
+                    } /// DELETE
+                }
             }
         }
     }
