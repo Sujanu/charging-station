@@ -474,6 +474,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
 
                     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+                    Column{
                     Button(
                         onClick = {
                             if (
