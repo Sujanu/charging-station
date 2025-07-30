@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import com.example.chargingstation.ChargingStation
 import com.example.chargingstation.R
 import com.example.chargingstation.ui.theme.ChargingStationTheme
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,7 +165,8 @@ fun AllStationsListScreen(db: ChargingStation) {
                         .align(Alignment.CenterHorizontally)
                         .padding(8.dp)
                         .background(color = Color.White)
-                        .pointerInput(Unit) {
+                        .pointerInput(Unit)
+                    {
                             detectTapGestures(
                                 onDoubleTap = {
                                     val intent = Intent(context, DetailPage::class.java)

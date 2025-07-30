@@ -24,6 +24,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChargingStation">
         <activity
+            android:name=".activites.Monthly"
+            android:exported="false"
+            android:label="@string/title_activity_monthly"
+            android:theme="@style/Theme.ChargingStation" />
+        <activity
+            android:name=".activites.FieldSurvey"
+            android:exported="false"
+            android:label="@string/title_activity_field_survey"
+            android:theme="@style/Theme.ChargingStation" />
+        <activity
             android:name=".activites.Charger"
             android:exported="false"
             android:label="@string/title_activity_charger"
@@ -73,7 +83,7 @@
             android:name=".activites.MainActivity"
             android:exported="false"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ChargingStation"></activity>
+            android:theme="@style/Theme.ChargingStation" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

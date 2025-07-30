@@ -15,4 +15,6 @@
     <string name="title_activity_splash_screen">SplashScreen</string>
     <string name="title_activity_sign_up">SignUp</string>
     <string name="title_activity_charger">Charger</string>
+    <string name="title_activity_field_survey">FieldSurvey</string>
+    <string name="title_activity_monthly">Monthly</string>
 </resources>

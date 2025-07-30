@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -40,6 +41,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,10 +54,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.example.chargingstation.ChargingStation
-import com.example.chargingstation.R
+import com.example.chargingstation.SharedPrefsHelper
 import com.example.chargingstation.model.ChargingStationData
 import com.example.chargingstation.ui.theme.ChargingStationTheme
 import com.example.chargingstation.utils.GPSFetcher
@@ -156,6 +156,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
         onPhoto1Captured = { photo1 = it },
         onPhoto2Captured = { photo2 = it }
     )
+
 
     val context = LocalContext.current
 
@@ -519,6 +520,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                     // INSERT
                                     if (newStation != null) {
                                         db?.insertCharger1(
+
                                             uuid = newStation.uuid,
                                             owner = newStation.owner,
                                             contact = newStation.contact,
@@ -533,11 +535,18 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                             averageNoOfMicroBusPerDay = newStation.microBusPerDay,
                                             averageNoOfCarBusPerDay = newStation.carBusPerDay,
                                             anyChallengesOrIssuesDuringImplementaion = newStation.challenges,
+
                                             photo1 = newStation.photo1,
                                             photo2 = newStation.photo2
                                         )
+                                        SharedPrefsHelper.saveString(context, "station_uuid", uuid)
+
                                         isSaveClicked = true // ✅ Set after insert
-                                        Toast.makeText(context, "Station inserted!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Station inserted!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 } else {
                                     // UPDATE
@@ -558,14 +567,14 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                                         }
                                     }
                                 }
-
 //                                context.startActivity(Intent(context, MainActivity::class.java))
                             } else {
                                 Toast.makeText(context, "Fill all fields", Toast.LENGTH_SHORT)
                                     .show()
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(
+                        enabled = !isSaveClicked,
+                                colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent, // Matches background
                             contentColor = Color.Black// Text color
                         ),
@@ -580,6 +589,8 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         )
                     }
 
+                }  ////////// SAVE
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     if (isSaveClicked) {
@@ -587,7 +598,7 @@ fun ChargerStation1(db: ChargingStation?, station: ChargingStationData? = null) 
                         Button(
                             onClick = {
                                 val intent = Intent(context, Charger::class.java)
-                                intent.putExtra("uuid", temp) // `temp` holds the UUID
+                                intent.putExtra("station_uuid", station?.uuid)  // pass UUID here
                                 context.startActivity(intent)
                             },
                             colors = ButtonDefaults.buttonColors(
