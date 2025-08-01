@@ -17,4 +17,5 @@
     <string name="title_activity_charger">Charger</string>
     <string name="title_activity_field_survey">FieldSurvey</string>
     <string name="title_activity_monthly">Monthly</string>
+    <string name="title_activity_m2">M2</string>
 </resources>

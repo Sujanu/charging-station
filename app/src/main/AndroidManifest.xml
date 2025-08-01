@@ -24,6 +24,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChargingStation">
         <activity
+            android:name=".activites.M2"
+            android:exported="false"
+            android:label="@string/title_activity_m2"
+            android:theme="@style/Theme.ChargingStation" />
+        <activity
             android:name=".activites.Monthly"
             android:exported="false"
             android:label="@string/title_activity_monthly"
