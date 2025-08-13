@@ -28,3 +28,25 @@ class GPSFetcher(private val context: Context) {
         }, Looper.getMainLooper())
     }
 }
+
+
+///////////
+
+//
+//api								params				type
+//https://nwash.gov.np/projectsync/get_projects			mun_code			Get
+//
+//https://nwash.gov.np/applogin					{"Email": "dev@mail.com",	POST
+//"Password": "nwashadmin"}
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+////////////
