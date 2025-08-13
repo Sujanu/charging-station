@@ -43,11 +43,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.chargingstation.ChargingStation
+import com.example.chargingstation.database.ChargingStation
 import com.example.chargingstation.R
 import com.example.chargingstation.ui.theme.ChargingStationTheme
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,9 +71,9 @@ fun MainScreen(db: ChargingStation) {
 
 //    val db = ChargingStation(context)
 
-    Scaffold(
+    Scaffold()
 
-    ) { innerPadding ->
+     { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource(id = R.drawable.charger),
@@ -141,9 +139,6 @@ fun AllStationsListScreen(db: ChargingStation) {
 
     Spacer(modifier = Modifier.height(80.dp))
 
-
-    var sn = 1
-
     val context = LocalContext.current
 
     Column(
@@ -189,7 +184,7 @@ fun AllStationsListScreen(db: ChargingStation) {
 
 
                         Text(
-                            "$sn Station:" +
+                            "Station:" +
                                     " ${station.stationName}",
                             style = MaterialTheme.typography.titleMedium,
                             fontSize = 20.sp
@@ -199,7 +194,6 @@ fun AllStationsListScreen(db: ChargingStation) {
 
                         Spacer(modifier = Modifier.weight(1f))
                     }
-                    sn = sn + 1
                 }
             }
         }

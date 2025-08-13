@@ -1,4 +1,4 @@
-package com.example.chargingstation
+package com.example.chargingstation.database
 
 import android.content.ContentValues
 import android.content.Context

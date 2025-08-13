@@ -51,7 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextDecoration
 
 import com.example.chargingstation.R
-import com.example.chargingstation.ChargingStation
+import com.example.chargingstation.database.ChargingStation
 import com.example.chargingstation.activites.ui.theme.ChargingStationTheme
 
 class LoginPage : ComponentActivity() {
